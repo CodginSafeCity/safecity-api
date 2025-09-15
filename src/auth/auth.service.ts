@@ -6,6 +6,7 @@ import * as bcrypt from 'bcrypt';
 export class AuthService {
     private users = [
         {
+            id: 1,
             email: 'hozkar178@gmail.com',
             password: '$2b$10$x.jPJwKdn07upXxRev8rQuFXI1nlqcdIE56Z49xYhNOpXT637Fplq'
         },
