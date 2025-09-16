@@ -3,6 +3,7 @@
 /node_modules
 /build
 /temp
+/src/auth/dto
 # Logs
 logs
 *.log
