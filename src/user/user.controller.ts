@@ -25,6 +25,9 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserEntity } from './user.entity';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { Public } from 'src/common/decorators/public.decorator';
 
 @ApiTags('users')
 @ApiBearerAuth()
@@ -36,7 +39,7 @@ import { UserEntity } from './user.entity';
 export class UserController {
   private readonly logger = new Logger(UserController.name);
 
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @ApiOkResponse({
     description: 'User created successfully',
@@ -127,4 +130,25 @@ export class UserController {
       data: user,
     };
   }
+
+  @Post('forgot-password')
+  @Public()
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    const token = await this.userService.generateResetToken(dto.email);
+    return {
+      message: 'Se ha enviado un correo con instrucciones',
+      token,
+    };
+  }
+
+  @Post('reset-password')
+  @Public()
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    const user = await this.userService.resetPassword(dto.email, dto);
+    return {
+      message: 'Contraseña actualizada correctamente',
+      data: { id: user.id, email: user.email },
+    };
+  }
+
 }

@@ -25,4 +25,10 @@ export class UserEntity extends BaseEntity {
 
   @ManyToOne(() => CityEntity, { nullable: true })
   city?: CityEntity;
+
+  @Property({ nullable: true, name: 'reset_token' })
+  resetToken?: string;
+
+  @Property({ nullable: true, name: 'reset_token_expires_at', type: 'timestamptz' })
+  resetTokenExpiresAt?: Date;
 }

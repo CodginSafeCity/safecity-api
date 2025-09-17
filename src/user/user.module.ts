@@ -5,11 +5,12 @@ import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { RoleEntity } from 'src/roles/role.entity';
 import { CityEntity } from 'src/locations/city.entity';
+import { MailerModule } from 'src/mailer/mailer.module';
 
 @Module({
-  imports: [MikroOrmModule.forFeature([UserEntity, RoleEntity, CityEntity])],
+  imports: [MikroOrmModule.forFeature([UserEntity, RoleEntity, CityEntity]), MailerModule],
   providers: [UserService],
   controllers: [UserController],
-  exports: [UserService],
+  exports: [UserService, MikroOrmModule],
 })
 export class UserModule {}

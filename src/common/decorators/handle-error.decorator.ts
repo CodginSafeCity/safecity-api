@@ -1,5 +1,3 @@
-// src/common/decorators/handle-error.decorator.ts
-
 import { HttpException, Logger } from '@nestjs/common';
 
 export type ErrorException = new (message: string) => HttpException;
@@ -48,7 +46,6 @@ function wrapMethod(
         throw error;
       }
 
-      // si no hay configuración, default: InternalServerError
       throw new HttpException(context, 500);
     }
   };

@@ -1,31 +1,34 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import type { EntityRepository, FilterQuery } from '@mikro-orm/postgresql';
+import { UserEntity } from 'src/user/user.entity';
+import { InjectRepository } from '@mikro-orm/nestjs';
+import { UserDto } from 'src/user/dto/user.dto';
 
 @Injectable()
 export class AuthService {
-    private users = [
-        {
-            id: 1,
-            email: 'hozkar178@gmail.com',
-            password: '$2b$10$x.jPJwKdn07upXxRev8rQuFXI1nlqcdIE56Z49xYhNOpXT637Fplq'
-        },
-    ];
 
-    constructor(private readonly jwtService: JwtService) { }
+    constructor(
+        private readonly jwtService: JwtService,
+        @InjectRepository(UserEntity)
+        private readonly userRepository: EntityRepository<UserEntity>,
+    ) { }
 
-    async validateUser(email: string, pass: string) {
-        const user = this.users.find(u => u.email === email);
-        if (!user) {
-            throw new UnauthorizedException('Credenciales inválidas: usuario no encontrado');
-        }
+    async validateUser(email: string, pass: string): Promise<UserDto> {
+        const user = await this.userRepository.findOne(
+            { email },
+            { populate: ['role', 'city'] },
+        );
+        if (!user) throw new UnauthorizedException('Credenciales inválidas: usuario no encontrado');
+
         const isPasswordValid = await bcrypt.compare(pass, user.password);
-        if (isPasswordValid) {
-            const { password, ...result } = user;
-            return result;
-        }
-        throw new UnauthorizedException('Credenciales inválidas: contraseña incorrecta');
+        if (!isPasswordValid) throw new UnauthorizedException('Credenciales inválidas: contraseña incorrecta');
+
+        const { password, resetToken, resetTokenExpiresAt, ...result } = user;
+        return result;
     }
+
 
     async login(user: any) {
         const payload = { sub: user.id, email: user.email };

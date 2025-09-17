@@ -4,15 +4,21 @@ import {
     Injectable,
     InternalServerErrorException,
     NotFoundException,
+    BadRequestException
 } from '@nestjs/common';
 import { HandleError } from 'src/common/decorators/handle-error.decorator';
 import { UserEntity } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { RoleEntity } from 'src/roles/role.entity';
 import { CityEntity } from 'src/locations/city.entity';
 import * as bcrypt from 'bcrypt';
 import { wrap } from '@mikro-orm/core';
+import { randomBytes } from 'crypto';
+import { addHours, isAfter } from 'date-fns';
+import * as nodemailer from 'nodemailer';
+import { MailerService } from 'src/mailer/mailer.service';
 
 @Injectable()
 export class UserService {
@@ -23,6 +29,7 @@ export class UserService {
         private readonly roleRepository: EntityRepository<RoleEntity>,
         @InjectRepository(CityEntity)
         private readonly cityRepository: EntityRepository<CityEntity>,
+        private readonly mailerService: MailerService,
     ) { }
 
     @HandleError('Error creating user', {
@@ -31,10 +38,8 @@ export class UserService {
     async create(dto: CreateUserDto): Promise<UserEntity> {
         const hashedPassword = await bcrypt.hash(dto.password, 10);
 
-        // buscar rol obligatorio
         const role = await this.roleRepository.findOneOrFail({ id: dto.roleId });
 
-        // buscar ciudad opcional
         const city = dto.cityId
             ? await this.cityRepository.findOneOrFail({ id: dto.cityId })
             : null;
@@ -46,8 +51,8 @@ export class UserService {
             email: dto.email,
             password: hashedPassword,
             avatar: dto.avatar,
-            role,   // ahora sí como objeto
-            city,   // objeto o null
+            role,
+            city,
         });
 
         await this.userRepository.getEntityManager().persistAndFlush(user);
@@ -110,4 +115,48 @@ export class UserService {
         await this.userRepository.getEntityManager().removeAndFlush(user);
         return user;
     }
+
+    async generateResetToken(email: string): Promise<string> {
+        const user = await this.userRepository.findOne({ email });
+        if (!user) throw new NotFoundException('User not found');
+
+        const token = randomBytes(32).toString('hex');
+        user.resetToken = token;
+        user.resetTokenExpiresAt = addHours(new Date(), 1);
+
+        await this.userRepository.getEntityManager().persistAndFlush(user);
+
+        const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+
+        await this.mailerService.sendMail(
+            user.email,
+            'Recuperación de contraseña',
+            `<p>Haz click en el siguiente enlace para restablecer tu contraseña:</p>
+                <a href="${resetUrl}">${resetUrl}</a>
+                <p>Este enlace expira en 1 hora.</p>`,
+        );
+
+        return token;
+    }
+
+    async resetPassword(email: string, dto: ResetPasswordDto): Promise<UserEntity> {
+        const user = await this.userRepository.findOne({ email });
+        if (!user) throw new NotFoundException('Usuario no encontrado');
+
+        if (user.resetToken !== dto.token) {
+            throw new BadRequestException('Token inválido');
+        }
+
+        if (!user.resetTokenExpiresAt || isAfter(new Date(), user.resetTokenExpiresAt)) {
+            throw new BadRequestException('Token expirado');
+        }
+
+        user.password = await bcrypt.hash(dto.newPassword, 10);
+        user.resetToken = undefined;
+        user.resetTokenExpiresAt = undefined;
+
+        await this.userRepository.getEntityManager().persistAndFlush(user);
+        return user;
+    }
+
 }
