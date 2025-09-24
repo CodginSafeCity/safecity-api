@@ -7,6 +7,8 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { MailerModule } from './mailer/mailer.module';
 import { ConfigModule } from '@nestjs/config';
+import { IncidentCategoryModule } from './incident-categories/incident-category.module';
+import { IncidentModule } from './incidents/incident.module';
 
 
 @Module({
@@ -14,6 +16,8 @@ import { ConfigModule } from '@nestjs/config';
     AuthModule,
     UserModule,
     MailerModule,
+    IncidentCategoryModule,
+    IncidentModule,
     MikroOrmModule.forRoot(databaseConfig),
     ConfigModule.forRoot({
       isGlobal: true,

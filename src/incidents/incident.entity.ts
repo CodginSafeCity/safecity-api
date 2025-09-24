@@ -1,6 +1,6 @@
 import { Entity, Property, ManyToOne } from '@mikro-orm/core';
 import { UserEntity } from 'src/user/user.entity';
-import { IncidentCategoryEntity } from './incident-category.entity';
+import { IncidentCategoryEntity } from 'src/incident-categories/incident-category.entity';
 import { CityEntity } from 'src/locations/city.entity';
 import { BaseEntity } from 'src/core/base-entity';
 
