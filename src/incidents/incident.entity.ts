@@ -1,8 +1,9 @@
-import { Entity, Property, ManyToOne } from '@mikro-orm/core';
+import { Entity, Property, ManyToOne, Enum } from '@mikro-orm/core';
 import { UserEntity } from 'src/user/user.entity';
 import { IncidentCategoryEntity } from 'src/incident-categories/incident-category.entity';
 import { CityEntity } from 'src/locations/city.entity';
 import { BaseEntity } from 'src/core/base-entity';
+import { IncidentStatus } from './incident.types';
 
 @Entity({ tableName: 'incidents' })
 export class IncidentEntity extends BaseEntity {
@@ -26,4 +27,8 @@ export class IncidentEntity extends BaseEntity {
 
   @Property({ type: 'geometry', nullable: true })
   location?: any;
+
+  @Enum(() => IncidentStatus)
+  status: IncidentStatus = IncidentStatus.OPEN;
+
 }

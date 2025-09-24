@@ -11,6 +11,7 @@ import { CreateIncidentDto } from './dto/create-incident.dto';
 import { UpdateIncidentDto } from './dto/update-incident.dto';
 import { UserEntity } from 'src/user/user.entity';
 import { IncidentCategoryEntity } from 'src/incident-categories/incident-category.entity';
+import { IncidentQueryFilterDto } from './dto/incident-find-options.dto';
 import { CityEntity } from 'src/locations/city.entity';
 import { wrap } from '@mikro-orm/core';
 
@@ -53,10 +54,32 @@ export class IncidentService {
     @HandleError('Error retrieving incidents', {
         errorException: InternalServerErrorException,
     })
-    async find(filter: FilterQuery<IncidentEntity> = {}): Promise<IncidentEntity[]> {
-        return this.incidentRepository.find(filter, {
+    async find(query: IncidentQueryFilterDto): Promise<{ data: IncidentEntity[]; total: number }> {
+        const filter: FilterQuery<IncidentEntity> = {};
+
+        if (query.filter?.description) {
+            filter.description = { $like: `%${query.filter.description}%` };
+        }
+
+        if ((query.filter as any)?.status) {
+            filter['status'] = (query.filter as any).status;
+        }
+
+        // Aquí podrías agregar filtros extra por relaciones (user, city, category)
+        // if ((query.filter as any)?.cityId) {
+        //   filter.city = (query.filter as any).cityId;
+        // }
+
+        const [result, total] = await this.incidentRepository.findAndCount(filter, {
             populate: ['user', 'category', 'city'],
+            limit: query.pagination?.limit ?? 10,
+            offset: query.pagination?.offset ?? 0,
         });
+
+        return {
+            data: result,
+            total,
+        };
     }
 
     @HandleError('Error retrieving incident by id', { throwError: true })
