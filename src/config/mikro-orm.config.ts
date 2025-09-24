@@ -6,7 +6,7 @@ import { RoleEntity } from 'src/roles/role.entity';
 import { CityEntity } from 'src/locations/city.entity';
 import { ProvinceEntity } from 'src/locations/province.entity';
 import { IncidentEntity } from 'src/incidents/incident.entity';
-import { IncidentCategoryEntity } from 'src/incidents/incident-category.entity';
+import { IncidentCategoryEntity } from 'src/incident-categories/incident-category.entity';
 import { IncidentPicture } from 'src/incidents/incident-picture.entity';
 import { Notification } from 'src/notifications/notification.entity';
 import { AvailabilityZoneEntity } from 'src/availability-zones/availability-zone.entity';
