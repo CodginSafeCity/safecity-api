@@ -1,7 +1,8 @@
-import { IsNotEmpty, IsOptional, IsString, IsUUID, ValidateNested } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsOptional, IsString, IsUUID, ValidateNested, IsEnum } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { LocationDto } from './location.dto';
+import { IncidentStatus } from '../incident.types';
 
 export class CreateIncidentDto {
   @ApiProperty({ description: 'Usuario que reporta el incidente', format: 'uuid' })
@@ -32,11 +33,10 @@ export class CreateIncidentDto {
   @IsNotEmpty()
   reported_at!: Date;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Fecha y hora de verificación (si aplica)',
     type: 'string',
     format: 'date-time',
-    required: false,
   })
   @IsOptional()
   verified_at?: Date;
@@ -49,4 +49,9 @@ export class CreateIncidentDto {
   @ValidateNested()
   @Type(() => LocationDto)
   location!: LocationDto;
+
+  @ApiPropertyOptional({ enum: IncidentStatus, description: 'Estado del incidente' })
+  @IsOptional()
+  @IsEnum(IncidentStatus)
+  status?: IncidentStatus;
 }
