@@ -23,9 +23,11 @@ services:
       - safecity-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
-      interval: 10s
+      interval: 30s
       timeout: 5s
       retries: 5
+    ports:
+      - "5431:5432"  # Expose PostgreSQL port
 
 networks:
   safecity-network:

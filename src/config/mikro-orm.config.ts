@@ -17,7 +17,7 @@ const databaseConfig: Options = {
   driver: PostgreSqlDriver,
   clientUrl:
     process.env.DATABASE_URL ||
-    'postgres://postgres:pgadmin@localhost:5432/safecity',
+    'postgres://postgres:postgres@localhost:5432/safecity',
 
   entities: [
     UserEntity,
