@@ -15,6 +15,7 @@ import {
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiBody,
   ApiInternalServerErrorResponse,
   ApiOkResponse,
   ApiTags,
@@ -131,6 +132,7 @@ export class UserController {
     };
   }
 
+  @ApiBody({ type: ForgotPasswordDto })
   @Post('forgot-password')
   @Public()
   async forgotPassword(@Body() dto: ForgotPasswordDto) {
@@ -141,6 +143,7 @@ export class UserController {
     };
   }
 
+  @ApiBody({ type: ResetPasswordDto })
   @Post('reset-password')
   @Public()
   async resetPassword(@Body() dto: ResetPasswordDto) {
