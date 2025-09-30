@@ -34,11 +34,9 @@ import {
     DeleteIncidentResponseDto,
     FindIncidentsByUserResponseDto,
 } from './dto/incident-response.dto';
-import {
-    IncidentFindOptionsDto,
-    IncidentQueryFilterDto,
-} from './dto/incident-find-options.dto';
+import { IncidentFindOptionsDto } from './dto/incident-find-options.dto';
 import { IncidentDto } from './dto/incident.dto';
+import { IncidentQueryFilterDto } from './dto/incident-find-options.dto';
 
 @ApiTags('incidents')
 @ApiBearerAuth()
@@ -62,7 +60,7 @@ export class IncidentController {
         return {
             statusCode: HttpStatus.CREATED,
             message: 'Incident created successfully',
-            data: incident,
+            data: IncidentDto.fromEntity(incident),
         };
     }
 
@@ -72,12 +70,9 @@ export class IncidentController {
     })
     @Get()
     async find(@Query() findOptions: IncidentFindOptionsDto) {
-        this.logger.debug('Retrieving incidents');
-        this.logger.debug('Received findOptions:', { findOptions });
+        const filter = IncidentQueryFilterDto.create(findOptions);
 
-        const incidents = await this.incidentService.find(
-            IncidentQueryFilterDto.create(findOptions),
-        );
+        const incidents = await this.incidentService.find(filter);
 
         return {
             statusCode: HttpStatus.OK,
@@ -99,7 +94,7 @@ export class IncidentController {
         return {
             statusCode: HttpStatus.OK,
             message: 'Incident retrieved successfully',
-            data: incident,
+            data: IncidentDto.fromEntity(incident),
         };
     }
 
@@ -108,15 +103,12 @@ export class IncidentController {
         type: UpdateIncidentResponseDto,
     })
     @Put(':id')
-    async update(
-        @Param('id', ParseUUIDPipe) id: string,
-        @Body() dto: UpdateIncidentDto,
-    ) {
+    async update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateIncidentDto) {
         const incident = await this.incidentService.update(id, dto);
         return {
             statusCode: HttpStatus.OK,
             message: 'Incident updated successfully',
-            data: incident,
+            data: IncidentDto.fromEntity(incident),
         };
     }
 
@@ -125,15 +117,12 @@ export class IncidentController {
         type: PatchIncidentResponseDto,
     })
     @Patch(':id')
-    async patch(
-        @Param('id', ParseUUIDPipe) id: string,
-        @Body() dto: UpdateIncidentDto,
-    ) {
+    async patch(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateIncidentDto) {
         const incident = await this.incidentService.update(id, dto);
         return {
             statusCode: HttpStatus.OK,
             message: 'Incident partially updated successfully',
-            data: incident,
+            data: IncidentDto.fromEntity(incident),
         };
     }
 
@@ -147,7 +136,7 @@ export class IncidentController {
         return {
             statusCode: HttpStatus.OK,
             message: 'Incident deleted successfully',
-            data: incident,
+            data: IncidentDto.fromEntity(incident),
         };
     }
 
@@ -161,7 +150,7 @@ export class IncidentController {
         return {
             statusCode: HttpStatus.OK,
             message: 'Incidents by user retrieved successfully',
-            data: incidents,
+            data: incidents.map(IncidentDto.fromEntity),
         };
     }
 }

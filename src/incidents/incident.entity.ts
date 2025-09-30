@@ -7,13 +7,13 @@ import { IncidentStatus } from './incident.types';
 
 @Entity({ tableName: 'incidents' })
 export class IncidentEntity extends BaseEntity {
-  @ManyToOne(() => UserEntity)
+  @ManyToOne(() => UserEntity, { eager: true })
   user!: UserEntity;
 
-  @ManyToOne(() => IncidentCategoryEntity)
+  @ManyToOne(() => IncidentCategoryEntity, { eager: true })
   category!: IncidentCategoryEntity;
 
-  @ManyToOne(() => CityEntity)
+  @ManyToOne(() => CityEntity, { eager: true })
   city!: CityEntity;
 
   @Property()

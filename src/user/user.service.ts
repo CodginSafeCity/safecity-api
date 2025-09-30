@@ -17,7 +17,6 @@ import * as bcrypt from 'bcrypt';
 import { wrap } from '@mikro-orm/core';
 import { randomBytes } from 'crypto';
 import { addHours, isAfter } from 'date-fns';
-import * as nodemailer from 'nodemailer';
 import { MailerService } from 'src/mailer/mailer.service';
 
 @Injectable()

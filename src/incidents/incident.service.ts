@@ -51,43 +51,23 @@ export class IncidentService {
         return incident;
     }
 
-    @HandleError('Error retrieving incidents', {
-        errorException: InternalServerErrorException,
-    })
-    async find(query: IncidentQueryFilterDto): Promise<{ data: IncidentEntity[]; total: number }> {
+    async find(query: IncidentQueryFilterDto) {
         const filter: FilterQuery<IncidentEntity> = {};
 
         if (query.filter?.description) {
             filter.description = { $like: `%${query.filter.description}%` };
         }
 
-        if ((query.filter as any)?.status) {
-            filter['status'] = (query.filter as any).status;
-        }
-
-        // Aquí podrías agregar filtros extra por relaciones (user, city, category)
-        // if ((query.filter as any)?.cityId) {
-        //   filter.city = (query.filter as any).cityId;
-        // }
-
         const [result, total] = await this.incidentRepository.findAndCount(filter, {
-            populate: ['user', 'category', 'city'],
             limit: query.pagination?.limit ?? 10,
             offset: query.pagination?.offset ?? 0,
         });
 
-        return {
-            data: result,
-            total,
-        };
+        return { data: result, total };
     }
 
-    @HandleError('Error retrieving incident by id', { throwError: true })
-    async findById(id: string): Promise<IncidentEntity> {
-        const incident = await this.incidentRepository.findOne(
-            { id },
-            { populate: ['user', 'category', 'city'] },
-        );
+    async findById(id: string) {
+        const incident = await this.incidentRepository.findOne({ id });
         if (!incident) throw new NotFoundException(`Incident with id ${id} not found`);
         return incident;
     }
