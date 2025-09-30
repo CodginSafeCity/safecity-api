@@ -22,7 +22,7 @@ import {
   LoginResponseDto,
   LoginErrorDto,
 } from './dto/login-response.dto';
-import { UserResponseDto } from './dto/user-response.dto';
+import { UserProfileResponseDto } from './dto/userProfile-response.dto';
 import { LogoutResponseDto } from './dto/logout-response.dto';
 
 @ApiTags('auth')
@@ -59,7 +59,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Post('profile')
   @ApiBearerAuth('access-token')
-  @ApiOkResponse({ description: 'Perfil del usuario autenticado', type: UserResponseDto })
+  @ApiOkResponse({ description: 'Perfil del usuario autenticado', type: UserProfileResponseDto })
   getProfile(@Request() req) {
     return req.user;
   }

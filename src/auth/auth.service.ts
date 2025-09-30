@@ -5,7 +5,7 @@ import type { EntityRepository, FilterQuery } from '@mikro-orm/postgresql';
 import { UserEntity } from 'src/user/user.entity';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { UserDto } from 'src/user/dto/user.dto';
-import { UserResponseDto } from './dto/user-response.dto';
+import { UserProfileResponseDto } from './dto/userProfile-response.dto';
 
 @Injectable()
 export class AuthService {
