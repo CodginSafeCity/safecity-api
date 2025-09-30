@@ -1,6 +1,7 @@
 import { Options, PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { TsMorphMetadataProvider } from '@mikro-orm/reflection';
 import { Migrator } from '@mikro-orm/migrations';
+import { SeedManager } from '@mikro-orm/seeder';
 import { UserEntity } from 'src/user/user.entity';
 import { RoleEntity } from 'src/roles/role.entity';
 import { CityEntity } from 'src/locations/city.entity';
@@ -17,7 +18,7 @@ const databaseConfig: Options = {
   driver: PostgreSqlDriver,
   clientUrl:
     process.env.DATABASE_URL ||
-    'postgres://postgres:postgres@localhost:5432/safecity',
+    'postgres://postgres:pgadmin@localhost:5432/safecity',
 
   entities: [
     UserEntity,
@@ -34,7 +35,14 @@ const databaseConfig: Options = {
   metadataProvider: TsMorphMetadataProvider,
   debug: !isProd,
   tsNode: !isProd,
-  extensions: [Migrator],
+
+  extensions: [Migrator, SeedManager],
+
+  seeder: {
+    path: './src/seeders',
+    pathTs: './src/seeders',
+    defaultSeeder: 'DatabaseSeeder',
+  },
 };
 
 export default databaseConfig;
