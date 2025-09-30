@@ -1,12 +1,31 @@
-import { Controller, Post, Request, UseGuards, Res, Body } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Request,
+  UseGuards,
+  Res,
+  Body,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LoginDto } from './dto/login.dto';
 import type { Response } from 'express';
-import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiTags,
+  ApiOkResponse,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+import {
+  LoginResponseDto,
+  LoginErrorDto,
+} from './dto/login-response.dto';
+import { UserResponseDto } from './dto/user-response.dto';
+import { LogoutResponseDto } from './dto/logout-response.dto';
 
-// @ApiTags('auth')
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -14,12 +33,16 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   @ApiBody({ type: LoginDto })
+  @ApiOkResponse({ description: 'Login exitoso', type: LoginResponseDto })
+  @ApiUnauthorizedResponse({ description: 'Credenciales inválidas', type: LoginErrorDto })
   async login(@Request() req) {
     return this.authService.login(req.user);
   }
 
   @Post('login-test')
   @ApiBody({ type: LoginDto })
+  @ApiOkResponse({ description: 'Login de prueba exitoso', type: LoginResponseDto })
+  @ApiUnauthorizedResponse({ description: 'Credenciales inválidas', type: LoginErrorDto })
   async loginTest(@Body() loginDto: LoginDto) {
     const user = await this.authService.validateUser(
       loginDto.email,
@@ -36,12 +59,14 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Post('profile')
   @ApiBearerAuth('access-token')
+  @ApiOkResponse({ description: 'Perfil del usuario autenticado', type: UserResponseDto })
   getProfile(@Request() req) {
     return req.user;
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('logout')
+  @ApiOkResponse({ description: 'Logout exitoso', type: LogoutResponseDto })
   async logout(@Res() res: Response) {
     res.clearCookie('jwt');
     return res.json({ message: 'Logout exitoso' });

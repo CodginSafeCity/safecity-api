@@ -1,4 +1,4 @@
- import {
+import {
   Body,
   Controller,
   Delete,
@@ -24,7 +24,13 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { IncidentCategoryService } from './incident-category.service';
 import { CreateIncidentCategoryDto } from './dto/create-incident-category.dto';
 import { UpdateIncidentCategoryDto } from './dto/update-incident-category.dto';
-import { IncidentCategoryEntity } from './incident-category.entity';
+import {
+  CreateIncidentCategoryResponseDto,
+  FindIncidentCategoriesResponseDto,
+  FindIncidentCategoryResponseDto,
+  UpdateIncidentCategoryResponseDto,
+  DeleteIncidentCategoryResponseDto,
+} from './dto/incident-category-response.dto';
 
 @ApiTags('incident-categories')
 @ApiBearerAuth()
@@ -42,7 +48,7 @@ export class IncidentCategoryController {
 
   @ApiOkResponse({
     description: 'Incident category created successfully',
-    type: IncidentCategoryEntity,
+    type: CreateIncidentCategoryResponseDto,
   })
   @Post()
   async create(@Body() dto: CreateIncidentCategoryDto) {
@@ -56,7 +62,7 @@ export class IncidentCategoryController {
 
   @ApiOkResponse({
     description: 'Incident categories retrieved successfully',
-    type: [IncidentCategoryEntity],
+    type: FindIncidentCategoriesResponseDto,
   })
   @Get()
   async find() {
@@ -70,7 +76,7 @@ export class IncidentCategoryController {
 
   @ApiOkResponse({
     description: 'Incident category retrieved successfully',
-    type: IncidentCategoryEntity,
+    type: FindIncidentCategoryResponseDto,
   })
   @Get(':id')
   async findById(@Param('id', ParseUUIDPipe) id: string) {
@@ -84,7 +90,7 @@ export class IncidentCategoryController {
 
   @ApiOkResponse({
     description: 'Incident category updated successfully',
-    type: IncidentCategoryEntity,
+    type: UpdateIncidentCategoryResponseDto,
   })
   @Put(':id')
   async update(
@@ -101,7 +107,7 @@ export class IncidentCategoryController {
 
   @ApiOkResponse({
     description: 'Incident category updated successfully',
-    type: IncidentCategoryEntity,
+    type: UpdateIncidentCategoryResponseDto,
   })
   @Patch(':id')
   async patch(
@@ -118,7 +124,7 @@ export class IncidentCategoryController {
 
   @ApiOkResponse({
     description: 'Incident category deleted successfully',
-    type: IncidentCategoryEntity,
+    type: DeleteIncidentCategoryResponseDto,
   })
   @Delete(':id')
   async delete(@Param('id', ParseUUIDPipe) id: string) {

@@ -29,6 +29,9 @@ import { UserEntity } from './user.entity';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { Public } from 'src/common/decorators/public.decorator';
+import { ResetResponseDto } from './dto/reset-response.dto';
+import { UserResponseDto } from './dto/user-response.dto';
+import { ForgotResponseDto } from './dto/forgot-response.dto';
 
 @ApiTags('users')
 @ApiBearerAuth()
@@ -44,7 +47,7 @@ export class UserController {
 
   @ApiOkResponse({
     description: 'User created successfully',
-    type: UserEntity,
+    type: UserResponseDto,
   })
   @Post()
   async create(@Body() dto: CreateUserDto) {
@@ -52,13 +55,13 @@ export class UserController {
     return {
       statusCode: HttpStatus.CREATED,
       message: 'User created successfully',
-      data: user,
+      data: this.toResponse(user),
     };
   }
 
   @ApiOkResponse({
     description: 'Users retrieved successfully',
-    type: [UserEntity],
+    type: [UserResponseDto],
   })
   @Get()
   async find() {
@@ -66,13 +69,13 @@ export class UserController {
     return {
       statusCode: HttpStatus.OK,
       message: 'Users retrieved successfully',
-      data: users,
+      data: users.map(this.toResponse),
     };
   }
 
   @ApiOkResponse({
     description: 'User retrieved successfully',
-    type: UserEntity,
+    type: UserResponseDto,
   })
   @Get(':id')
   async findById(@Param('id', ParseUUIDPipe) id: string) {
@@ -80,13 +83,13 @@ export class UserController {
     return {
       statusCode: HttpStatus.OK,
       message: 'User retrieved successfully',
-      data: user,
+      data: this.toResponse(user),
     };
   }
 
   @ApiOkResponse({
     description: 'User updated successfully',
-    type: UserEntity,
+    type: UserResponseDto,
   })
   @Put(':id')
   async update(
@@ -97,13 +100,13 @@ export class UserController {
     return {
       statusCode: HttpStatus.OK,
       message: 'User updated successfully',
-      data: user,
+      data: this.toResponse(user),
     };
   }
 
   @ApiOkResponse({
     description: 'User updated successfully',
-    type: UserEntity,
+    type: UserResponseDto,
   })
   @Patch(':id')
   async patch(
@@ -114,13 +117,13 @@ export class UserController {
     return {
       statusCode: HttpStatus.OK,
       message: 'User updated successfully',
-      data: user,
+      data: this.toResponse(user),
     };
   }
 
   @ApiOkResponse({
     description: 'User deleted successfully',
-    type: UserEntity,
+    type: UserResponseDto,
   })
   @Delete(':id')
   async delete(@Param('id', ParseUUIDPipe) id: string) {
@@ -128,11 +131,15 @@ export class UserController {
     return {
       statusCode: HttpStatus.OK,
       message: 'User deleted successfully',
-      data: user,
+      data: this.toResponse(user),
     };
   }
 
   @ApiBody({ type: ForgotPasswordDto })
+  @ApiOkResponse({
+    description: 'Forgot password request successful',
+    type: ForgotResponseDto,
+  })
   @Post('forgot-password')
   @Public()
   async forgotPassword(@Body() dto: ForgotPasswordDto) {
@@ -144,6 +151,10 @@ export class UserController {
   }
 
   @ApiBody({ type: ResetPasswordDto })
+  @ApiOkResponse({
+    description: 'Password reset successfully',
+    type: ResetResponseDto,
+  })
   @Post('reset-password')
   @Public()
   async resetPassword(@Body() dto: ResetPasswordDto) {
@@ -154,4 +165,28 @@ export class UserController {
     };
   }
 
+  private toResponse(user: UserEntity): UserResponseDto {
+    return {
+      id: user.id,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      name: user.name,
+      last_name: user.last_name,
+      email: user.email,
+      avatar: user.avatar,
+      role: user.role
+        ? {
+          id: user.role.id,
+          name: user.role.name,
+          description: user.role.description,
+        }
+        : undefined,
+      city: user.city
+        ? {
+          id: user.city.id,
+          name: user.city.name,
+        }
+        : undefined,
+    };
+  }
 }

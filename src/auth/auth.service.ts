@@ -5,6 +5,7 @@ import type { EntityRepository, FilterQuery } from '@mikro-orm/postgresql';
 import { UserEntity } from 'src/user/user.entity';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { UserDto } from 'src/user/dto/user.dto';
+import { UserResponseDto } from './dto/user-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -30,10 +31,16 @@ export class AuthService {
     }
 
 
-    async login(user: any) {
+    async login(user: UserDto) {
         const payload = { sub: user.id, email: user.email };
         return {
-            access_token: this.jwtService.sign(payload),
+            access_token: this.jwtService.sign(payload)
+            // user: {
+            //     id: user.id,
+            //     email: user.email,
+            //     name: user.name,
+            //     last_name: user.last_name,
+            // },
         };
     }
 }

@@ -11,7 +11,7 @@ import {
     Post,
     Put,
     UseGuards,
-    Query
+    Query,
 } from '@nestjs/common';
 import {
     ApiBadRequestResponse,
@@ -25,13 +25,20 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { IncidentService } from './incident.service';
 import { CreateIncidentDto } from './dto/create-incident.dto';
 import { UpdateIncidentDto } from './dto/update-incident.dto';
-import { IncidentDto } from './dto/incident.dto';
-import { ListIncidentsResponseDto } from './dto/list-incidents-response.dto';
-import { IncidentEntity } from './incident.entity';
+import {
+    CreateIncidentResponseDto,
+    FindIncidentsResponseDto,
+    FindIncidentByIdResponseDto,
+    UpdateIncidentResponseDto,
+    PatchIncidentResponseDto,
+    DeleteIncidentResponseDto,
+    FindIncidentsByUserResponseDto,
+} from './dto/incident-response.dto';
 import {
     IncidentFindOptionsDto,
     IncidentQueryFilterDto,
 } from './dto/incident-find-options.dto';
+import { IncidentDto } from './dto/incident.dto';
 
 @ApiTags('incidents')
 @ApiBearerAuth()
@@ -47,7 +54,7 @@ export class IncidentController {
 
     @ApiOkResponse({
         description: 'Incident created successfully',
-        type: IncidentEntity,
+        type: CreateIncidentResponseDto,
     })
     @Post()
     async create(@Body() dto: CreateIncidentDto) {
@@ -61,7 +68,7 @@ export class IncidentController {
 
     @ApiOkResponse({
         description: 'Incidents retrieved successfully with pagination',
-        type: ListIncidentsResponseDto,
+        type: FindIncidentsResponseDto,
     })
     @Get()
     async find(@Query() findOptions: IncidentFindOptionsDto) {
@@ -72,20 +79,19 @@ export class IncidentController {
             IncidentQueryFilterDto.create(findOptions),
         );
 
-        return new ListIncidentsResponseDto(
-            HttpStatus.OK,
-            'Incidents retrieved successfully',
-            incidents.data.map(IncidentDto.fromEntity),
-            incidents.total,
-            findOptions.limit ?? 0,
-            findOptions.offset ?? 0,
-        );
+        return {
+            statusCode: HttpStatus.OK,
+            message: 'Incidents retrieved successfully with pagination',
+            data: incidents.data.map(IncidentDto.fromEntity),
+            total: incidents.total,
+            limit: findOptions.limit ?? 0,
+            offset: findOptions.offset ?? 0,
+        };
     }
-
 
     @ApiOkResponse({
         description: 'Incident retrieved successfully',
-        type: IncidentEntity,
+        type: FindIncidentByIdResponseDto,
     })
     @Get(':id')
     async findById(@Param('id', ParseUUIDPipe) id: string) {
@@ -99,7 +105,7 @@ export class IncidentController {
 
     @ApiOkResponse({
         description: 'Incident updated successfully',
-        type: IncidentEntity,
+        type: UpdateIncidentResponseDto,
     })
     @Put(':id')
     async update(
@@ -116,7 +122,7 @@ export class IncidentController {
 
     @ApiOkResponse({
         description: 'Incident partially updated successfully',
-        type: IncidentEntity,
+        type: PatchIncidentResponseDto,
     })
     @Patch(':id')
     async patch(
@@ -133,7 +139,7 @@ export class IncidentController {
 
     @ApiOkResponse({
         description: 'Incident deleted successfully',
-        type: IncidentEntity,
+        type: DeleteIncidentResponseDto,
     })
     @Delete(':id')
     async delete(@Param('id', ParseUUIDPipe) id: string) {
@@ -147,7 +153,7 @@ export class IncidentController {
 
     @ApiOkResponse({
         description: 'Incidents by user retrieved successfully',
-        type: [IncidentEntity],
+        type: FindIncidentsByUserResponseDto,
     })
     @Get('user/:userId')
     async findByUser(@Param('userId', ParseUUIDPipe) userId: string) {
