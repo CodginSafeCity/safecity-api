@@ -1,6 +1,7 @@
 import {
   Controller,
   Post,
+  Get,
   Request,
   UseGuards,
   Res,
@@ -28,15 +29,24 @@ import { LogoutResponseDto } from './dto/logout-response.dto';
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
   @ApiBody({ type: LoginDto })
   @ApiOkResponse({ description: 'Login exitoso', type: LoginResponseDto })
   @ApiUnauthorizedResponse({ description: 'Credenciales inválidas', type: LoginErrorDto })
-  async login(@Request() req) {
-    return this.authService.login(req.user);
+  async login(@Body() loginDto: LoginDto) {
+    const user = await this.authService.validateUser(
+      loginDto.email,
+      loginDto.password,
+    );
+
+    if (!user) {
+      return { message: 'Credenciales inválidas' };
+    }
+
+    return this.authService.login(user);
   }
 
   @Post('login-test')
@@ -57,8 +67,8 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('profile')
-  @ApiBearerAuth('access-token')
+  @Get('profile')
+  @ApiBearerAuth()
   @ApiOkResponse({ description: 'Perfil del usuario autenticado', type: UserProfileResponseDto })
   getProfile(@Request() req) {
     return req.user;
