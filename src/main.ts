@@ -5,6 +5,8 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors();
+
   const config = new DocumentBuilder()
     .setTitle('SafeCity API')
     .setDescription('API para gestionar reportes de seguridad con datos geoespaciales')
@@ -15,6 +17,7 @@ async function bootstrap() {
       bearerFormat: 'JWT',
     })
     .build();
+
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
