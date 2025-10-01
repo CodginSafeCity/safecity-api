@@ -3,6 +3,7 @@ import { UserEntity } from '../user/user.entity';
 import { RoleEntity } from '../roles/role.entity';
 import { CityEntity } from '../locations/city.entity';
 import * as bcrypt from 'bcrypt';
+import { faker } from '@faker-js/faker';
 
 export class UserSeeder extends Seeder {
   async run(em: Parameters<Seeder['run']>[0]) {
@@ -29,5 +30,18 @@ export class UserSeeder extends Seeder {
       createdAt: new Date(),
       updatedAt: new Date(),
     });
+
+    for (let i = 0; i < 100; i++) {
+      em.create(UserEntity, {
+        email: faker.internet.email(),
+        name: faker.person.firstName(),
+        last_name: faker.person.lastName(),
+        password,
+        role,
+        city,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    }
   }
 }
