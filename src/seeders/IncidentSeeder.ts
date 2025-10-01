@@ -17,7 +17,7 @@ export class IncidentSeeder extends Seeder {
     }
 
     for (let i = 0; i < 100; i++) {
-      const reported_by = faker.helpers.arrayElement(users); // 👈 user que reporta
+      const reported_by = faker.helpers.arrayElement(users);
       const category = faker.helpers.arrayElement(categories);
       const city = faker.helpers.arrayElement(cities);
       const now = faker.date.recent({ days: 90 });
