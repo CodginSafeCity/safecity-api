@@ -636,32 +636,15 @@
           "default": "now()",
           "mappedType": "datetime"
         },
-        "user_id": {
-          "name": "user_id",
-          "type": "uuid",
+        "title": {
+          "name": "title",
+          "type": "varchar(255)",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false,
-          "mappedType": "uuid"
-        },
-        "category_id": {
-          "name": "category_id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "uuid"
-        },
-        "city_id": {
-          "name": "city_id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "uuid"
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
         },
         "description": {
           "name": "description",
@@ -673,34 +656,14 @@
           "length": 255,
           "mappedType": "string"
         },
-        "reported_at": {
-          "name": "reported_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "verified_at": {
-          "name": "verified_at",
-          "type": "timestamptz",
+        "category_id": {
+          "name": "category_id",
+          "type": "uuid",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": true,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "location": {
-          "name": "location",
-          "type": "geometry",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "mappedType": "unknown"
+          "mappedType": "uuid"
         },
         "status": {
           "name": "status",
@@ -716,6 +679,81 @@
             "CLOSED"
           ],
           "mappedType": "enum"
+        },
+        "cluster_group": {
+          "name": "cluster_group",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "integer"
+        },
+        "reported_by_id": {
+          "name": "reported_by_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "assigned_to_id": {
+          "name": "assigned_to_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "city_id": {
+          "name": "city_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "location": {
+          "name": "location",
+          "type": "geometry",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "unknown"
+        },
+        "reported_at": {
+          "name": "reported_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "assigned_at": {
+          "name": "assigned_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "verified_at": {
+          "name": "verified_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
         }
       },
       "name": "incidents",
@@ -734,19 +772,6 @@
       ],
       "checks": [],
       "foreignKeys": {
-        "incidents_user_id_foreign": {
-          "constraintName": "incidents_user_id_foreign",
-          "columnNames": [
-            "user_id"
-          ],
-          "localTableName": "public.incidents",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.users",
-          "createForeignKeyConstraint": true,
-          "updateRule": "cascade"
-        },
         "incidents_category_id_foreign": {
           "constraintName": "incidents_category_id_foreign",
           "columnNames": [
@@ -758,6 +783,35 @@
           ],
           "referencedTableName": "public.incident_categories",
           "createForeignKeyConstraint": true,
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
+        "incidents_reported_by_id_foreign": {
+          "constraintName": "incidents_reported_by_id_foreign",
+          "columnNames": [
+            "reported_by_id"
+          ],
+          "localTableName": "public.incidents",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.users",
+          "createForeignKeyConstraint": true,
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
+        "incidents_assigned_to_id_foreign": {
+          "constraintName": "incidents_assigned_to_id_foreign",
+          "columnNames": [
+            "assigned_to_id"
+          ],
+          "localTableName": "public.incidents",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.users",
+          "createForeignKeyConstraint": true,
+          "deleteRule": "set null",
           "updateRule": "cascade"
         },
         "incidents_city_id_foreign": {
@@ -771,6 +825,7 @@
           ],
           "referencedTableName": "public.cities",
           "createForeignKeyConstraint": true,
+          "deleteRule": "set null",
           "updateRule": "cascade"
         }
       },

@@ -19,7 +19,11 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "mikro:seeder": "mikro-orm seeder:create",
-    "mikro:seed": "mikro-orm seeder:run"
+    "mikro:seed": "mikro-orm seeder:run",
+    "mikro:create": "mikro-orm migration:create --config src/config/mikro-orm.config.ts",
+    "mikro:up": "mikro-orm migration:up --config src/config/mikro-orm.config.ts",
+    "mikro:down": "mikro-orm migration:down --config src/config/mikro-orm.config.ts",
+    "mikro:pending": "mikro-orm migration:pending --config src/config/mikro-orm.config.ts"
   },
   "dependencies": {
     "@mikro-orm/core": "^6.5.2",
