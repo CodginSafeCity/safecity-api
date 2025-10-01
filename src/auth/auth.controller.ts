@@ -6,6 +6,8 @@ import {
   UseGuards,
   Res,
   Body,
+  HttpException,
+  HttpStatus
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
@@ -18,11 +20,13 @@ import {
   ApiTags,
   ApiOkResponse,
   ApiUnauthorizedResponse,
+  ApiConflictResponse
 } from '@nestjs/swagger';
 import {
   LoginResponseDto,
   LoginErrorDto,
 } from './dto/login-response.dto';
+import { RegisterDto } from './dto/register.dto';
 import { UserProfileResponseDto } from './dto/userProfile-response.dto';
 import { LogoutResponseDto } from './dto/logout-response.dto';
 
@@ -30,6 +34,22 @@ import { LogoutResponseDto } from './dto/logout-response.dto';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
+
+  @Post('register')
+  @ApiBody({ type: RegisterDto })
+  @ApiOkResponse({ description: 'Usuario registrado exitosamente', type: UserProfileResponseDto })
+  @ApiConflictResponse({ description: 'El usuario ya existe' })
+  async register(@Body() registerDto: RegisterDto) {
+
+    const existingUser = await this.authService.findUserByEmail(registerDto.email);
+    if (existingUser) {
+      throw new HttpException('El usuario ya existe', HttpStatus.CONFLICT);
+    }
+
+    const user = await this.authService.registerWithCitizenRole(registerDto);
+    return user;
+  }
+
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
