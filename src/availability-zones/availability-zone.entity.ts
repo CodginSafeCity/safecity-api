@@ -5,13 +5,28 @@ import { ControlEntity } from 'src/control-entities/control-entity.entity';
 
 @Entity({ tableName: 'availability_zones' })
 export class AvailabilityZoneEntity extends BaseEntity {
-
-  @ManyToOne(() => ControlEntity)
-  controlEntity!: ControlEntity;
+  @Property()
+  name: string;
 
   @ManyToOne(() => CityEntity)
-  city!: CityEntity;
+  city: CityEntity;
 
-  @Property({ columnType: 'geometry(Polygon, 4326)', nullable: true })
-  area?: object;
+  @ManyToOne(() => ControlEntity)
+  controlEntity: ControlEntity;
+
+  @Property({ type: 'geometry', nullable: false })
+  area: object;
+
+  constructor(
+    name: string,
+    city: CityEntity,
+    controlEntity: ControlEntity,
+    area: object,
+  ) {
+    super();
+    this.name = name;
+    this.city = city;
+    this.controlEntity = controlEntity;
+    this.area = area;
+  }
 }

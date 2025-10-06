@@ -9,6 +9,7 @@ import { MailerModule } from './mailer/mailer.module';
 import { ConfigModule } from '@nestjs/config';
 import { IncidentCategoryModule } from './incident-categories/incident-category.module';
 import { IncidentModule } from './incidents/incident.module';
+import { AvailabilityZonesModule } from './availability-zones/availability-zone.module';
 
 
 @Module({
@@ -16,6 +17,7 @@ import { IncidentModule } from './incidents/incident.module';
     AuthModule,
     UserModule,
     MailerModule,
+    AvailabilityZonesModule,
     IncidentCategoryModule,
     IncidentModule,
     MikroOrmModule.forRoot(databaseConfig),

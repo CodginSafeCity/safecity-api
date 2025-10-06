@@ -371,14 +371,15 @@
           "default": "now()",
           "mappedType": "datetime"
         },
-        "control_entity_id": {
-          "name": "control_entity_id",
-          "type": "uuid",
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "mappedType": "uuid"
+          "length": 255,
+          "mappedType": "string"
         },
         "city_id": {
           "name": "city_id",
@@ -389,13 +390,22 @@
           "nullable": false,
           "mappedType": "uuid"
         },
-        "area": {
-          "name": "area",
-          "type": "geometry(Polygon, 4326)",
+        "control_entity_id": {
+          "name": "control_entity_id",
+          "type": "uuid",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": true,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "area": {
+          "name": "area",
+          "type": "geometry",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
           "mappedType": "unknown"
         }
       },
@@ -415,19 +425,6 @@
       ],
       "checks": [],
       "foreignKeys": {
-        "availability_zones_control_entity_id_foreign": {
-          "constraintName": "availability_zones_control_entity_id_foreign",
-          "columnNames": [
-            "control_entity_id"
-          ],
-          "localTableName": "public.availability_zones",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.control_entities",
-          "createForeignKeyConstraint": true,
-          "updateRule": "cascade"
-        },
         "availability_zones_city_id_foreign": {
           "constraintName": "availability_zones_city_id_foreign",
           "columnNames": [
@@ -438,6 +435,19 @@
             "id"
           ],
           "referencedTableName": "public.cities",
+          "createForeignKeyConstraint": true,
+          "updateRule": "cascade"
+        },
+        "availability_zones_control_entity_id_foreign": {
+          "constraintName": "availability_zones_control_entity_id_foreign",
+          "columnNames": [
+            "control_entity_id"
+          ],
+          "localTableName": "public.availability_zones",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.control_entities",
           "createForeignKeyConstraint": true,
           "updateRule": "cascade"
         }
