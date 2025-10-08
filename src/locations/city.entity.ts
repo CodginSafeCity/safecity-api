@@ -12,4 +12,15 @@ export class CityEntity extends BaseEntity {
 
   @Property({ type: 'geometry', nullable: true })
   location?: any;
+
+  constructor(
+    name: string,
+    province: ProvinceEntity,
+    location: any,
+  ) {
+    super();
+    this.name = name;
+    this.province = province;
+    this.location = location;
+  }
 }

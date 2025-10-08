@@ -7,7 +7,8 @@ import {
   Res,
   Body,
   HttpException,
-  HttpStatus
+  HttpStatus,
+  HttpCode
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
@@ -53,6 +54,7 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
+  @HttpCode(HttpStatus.OK)
   @ApiBody({ type: LoginDto })
   @ApiOkResponse({ description: 'Login exitoso', type: LoginResponseDto })
   @ApiUnauthorizedResponse({ description: 'Credenciales inválidas', type: LoginErrorDto })
@@ -96,6 +98,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Post('logout')
+  @HttpCode(200)
   @ApiOkResponse({ description: 'Logout exitoso', type: LogoutResponseDto })
   async logout(@Res() res: Response) {
     res.clearCookie('jwt');

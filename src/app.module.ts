@@ -6,6 +6,7 @@ import databaseConfig from './config/mikro-orm.config';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { MailerModule } from './mailer/mailer.module';
+import { CityModule } from './locations/city.module';
 import { ConfigModule } from '@nestjs/config';
 import { IncidentCategoryModule } from './incident-categories/incident-category.module';
 import { IncidentModule } from './incidents/incident.module';
@@ -15,6 +16,7 @@ import { AvailabilityZonesModule } from './availability-zones/availability-zone.
 @Module({
   imports: [
     AuthModule,
+    CityModule,
     UserModule,
     MailerModule,
     AvailabilityZonesModule,
