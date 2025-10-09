@@ -11,6 +11,7 @@ import { ConfigModule } from '@nestjs/config';
 import { IncidentCategoryModule } from './incident-categories/incident-category.module';
 import { IncidentModule } from './incidents/incident.module';
 import { AvailabilityZonesModule } from './availability-zones/availability-zone.module';
+import { ControlEntityModule } from './control-entities/control-entity.module';
 
 
 @Module({
@@ -22,6 +23,7 @@ import { AvailabilityZonesModule } from './availability-zones/availability-zone.
     AvailabilityZonesModule,
     IncidentCategoryModule,
     IncidentModule,
+    ControlEntityModule,
     MikroOrmModule.forRoot(databaseConfig),
     ConfigModule.forRoot({
       isGlobal: true,
