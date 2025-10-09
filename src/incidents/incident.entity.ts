@@ -1,4 +1,3 @@
-// incident.entity.ts
 import { Entity, Property, ManyToOne, Enum } from '@mikro-orm/core';
 import { UserEntity } from 'src/user/user.entity';
 import { IncidentCategoryEntity } from 'src/incident-categories/incident-category.entity';

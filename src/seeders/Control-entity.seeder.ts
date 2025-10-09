@@ -1,5 +1,5 @@
 import { Seeder } from '@mikro-orm/seeder';
-import { ControlEntity } from 'src/availability-zones/control-entity.entity';
+import { ControlEntity } from 'src/control-entities/control-entity.entity';
 
 export class ControlEntitySeeder extends Seeder {
   async run(em: Parameters<Seeder['run']>[0]) {

@@ -1151,8 +1151,8 @@
           "default": "now()",
           "mappedType": "datetime"
         },
-        "user_id": {
-          "name": "user_id",
+        "user_id_id": {
+          "name": "user_id_id",
           "type": "uuid",
           "unsigned": false,
           "autoincrement": false,
@@ -1186,10 +1186,10 @@
       ],
       "checks": [],
       "foreignKeys": {
-        "control_entity_users_user_id_foreign": {
-          "constraintName": "control_entity_users_user_id_foreign",
+        "control_entity_users_user_id_id_foreign": {
+          "constraintName": "control_entity_users_user_id_id_foreign",
           "columnNames": [
-            "user_id"
+            "user_id_id"
           ],
           "localTableName": "public.control_entity_users",
           "referencedColumnNames": [

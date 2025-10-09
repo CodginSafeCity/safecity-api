@@ -4,7 +4,7 @@ import { AvailabilityZonesService } from './availability-zones.service';
 import { AvailabilityZonesController } from 'src/availability-zones/availability-zone.controller';
 import { AvailabilityZoneEntity } from './availability-zone.entity';
 import { CityEntity } from 'src/locations/city.entity';
-import { ControlEntity } from './control-entity.entity';
+import { ControlEntity } from 'src/control-entities/control-entity.entity';
 
 @Module({
   imports: [

@@ -72,13 +72,13 @@ export class AvailabilityZonesService {
             zone.controlEntity = controlEntity;
         }
 
-        await this.em.flush(); // 👈 también se usa el entity manager
+        await this.em.flush();
         return zone;
     }
 
     async delete(id: string) {
         const zone = await this.findById(id);
-        await this.em.removeAndFlush(zone); // 👈 entity manager para eliminar
+        await this.em.removeAndFlush(zone);
         return zone;
     }
 }

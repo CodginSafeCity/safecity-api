@@ -1,17 +1,19 @@
-import { Injectable, UnauthorizedException, InternalServerErrorException } from '@nestjs/common';
+import { Logger, Injectable, UnauthorizedException, InternalServerErrorException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import type { EntityRepository, FilterQuery } from '@mikro-orm/postgresql';
 import { UserEntity } from 'src/user/user.entity';
-import { InjectRepository } from '@mikro-orm/nestjs';
+import { InjectRepository, logger } from '@mikro-orm/nestjs';
 import { UserDto } from 'src/user/dto/user.dto';
 import { UserProfileResponseDto } from './dto/userProfile-response.dto';
-import { RegisterDto } from './dto/register.dto';
+import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { UserService } from '../user/user.service';
 import { RoleEntity } from 'src/roles/role.entity';
+import { CityEntity } from 'src/locations/city.entity';
 
 @Injectable()
 export class AuthService {
+    private readonly logger = new Logger(AuthService.name);
 
     constructor(
         private readonly jwtService: JwtService,
@@ -20,25 +22,13 @@ export class AuthService {
         private readonly userService: UserService,
         @InjectRepository(RoleEntity)
         private readonly roleRepository: EntityRepository<RoleEntity>,
+        @InjectRepository(CityEntity)
+        private readonly cityRepository: EntityRepository<CityEntity>,
     ) { }
 
-    async registerWithCitizenRole(registerDto: RegisterDto) {
-        let role = await this.roleRepository.findOne({ name: 'citizen' });
-
-        if (!role) {
-            role = await this.roleRepository.findOne({ name: 'user' });
-        }
-
-        if (!role) {
-            throw new InternalServerErrorException('No se encontró ni rol "citizen" ni "user"');
-        }
-
-        const hashedPassword = await bcrypt.hash(registerDto.password, 10);
-
+    async create(dto: CreateUserDto): Promise<UserEntity> {        
         return this.userService.create({
-            ...registerDto,
-            password: hashedPassword,
-            roleId: role.id,
+            ...dto
         });
     }
 
@@ -48,19 +38,23 @@ export class AuthService {
     }
 
     async validateUser(email: string, pass: string): Promise<UserDto> {
-        const user = await this.userRepository.findOne(
-            { email },
-            { populate: ['role', 'city'] },
-        );
-        if (!user) throw new UnauthorizedException('Credenciales inválidas: usuario no encontrado');
+        const user = await this.userRepository.findOne({ email });
+        if (!user) {
+            throw new UnauthorizedException('Credenciales inválidas: usuario no encontrado');
+        }
 
-        const isPasswordValid = await bcrypt.compare(pass, user.password);
-        if (!isPasswordValid) throw new UnauthorizedException('Credenciales inválidas: contraseña incorrecta');
+        const passwordValid = await bcrypt.compare(pass, user.password);
+        this.logger.debug('Contraseña ingresada:', pass);
+        this.logger.debug('Hash guardado en BD:', user.password);
+        this.logger.debug('Comparación bcrypt:', await bcrypt.compare(pass, user.password));
 
-        const { password, resetToken, resetTokenExpiresAt, ...result } = user;
-        return result;
+        if (email === user.email && passwordValid) {
+            const { password, resetToken, resetTokenExpiresAt, ...result } = user;
+            return result as UserDto;
+        } else {
+            throw new UnauthorizedException('Credenciales inválidas: contraseña incorrecta');
+        }
     }
-
 
     async login(user: UserDto) {
         const payload = {

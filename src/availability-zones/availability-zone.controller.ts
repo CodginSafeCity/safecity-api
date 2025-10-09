@@ -63,7 +63,7 @@ export class AvailabilityZonesController {
   }
 
   @ApiOkResponse({
-    description: 'Availability Zones retrieved successfully with pagination',
+    description: 'Availability Zones retrieved successfully',
     type: FindAvailabilityZonesResponseDto,
   })
   @Get()
@@ -71,7 +71,7 @@ export class AvailabilityZonesController {
     const zones = await this.availabilityZonesService.find(findOptions);
     return {
       statusCode: HttpStatus.OK,
-      message: 'Availability Zones retrieved successfully with pagination',
+      message: 'Availability Zones retrieved successfully',
       data: zones.data.map(AvailabilityZoneDto.fromEntity),
       total: zones.total,
       limit: findOptions.limit ?? 0,

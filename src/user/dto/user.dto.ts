@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { RoleEntity } from 'src/roles/role.entity';
 import { CityEntity } from 'src/locations/city.entity';
+import { Expose, plainToInstance } from 'class-transformer';
+import { UserEntity } from 'src/user/user.entity';
 
 export class RoleDto {
   @ApiProperty({ example: 'uuid-role-123' })
@@ -39,4 +41,8 @@ export class UserDto {
 
   @ApiProperty({ type: CityDto, required: false })
   city?: CityDto;
+
+  static fromEntity(entity: UserEntity): UserDto {
+    return plainToInstance(UserDto, entity);
+  }
 }

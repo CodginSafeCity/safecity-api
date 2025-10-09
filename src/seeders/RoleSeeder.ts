@@ -8,6 +8,7 @@ export class RoleSeeder extends Seeder {
     const roles = [
       { id: crypto.randomUUID(), name: 'Admin', description: 'Administrador del sistema', createdAt: now, updatedAt: now },
       { id: crypto.randomUUID(), name: 'User', description: 'Usuario normal', createdAt: now, updatedAt: now },
+      { id: crypto.randomUUID(), name: 'Verifier', description: 'Usuario Verificador', createdAt: now, updatedAt: now },
     ];
 
     for (const role of roles) {

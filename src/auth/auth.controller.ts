@@ -27,7 +27,8 @@ import {
   LoginResponseDto,
   LoginErrorDto,
 } from './dto/login-response.dto';
-import { RegisterDto } from './dto/register.dto';
+import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import { UserDto } from 'src/user/dto/user.dto';
 import { UserProfileResponseDto } from './dto/userProfile-response.dto';
 import { LogoutResponseDto } from './dto/logout-response.dto';
 
@@ -37,18 +38,20 @@ export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
   @Post('register')
-  @ApiBody({ type: RegisterDto })
+  @ApiBody({ type: CreateUserDto })
   @ApiOkResponse({ description: 'Usuario registrado exitosamente', type: UserProfileResponseDto })
   @ApiConflictResponse({ description: 'El usuario ya existe' })
-  async register(@Body() registerDto: RegisterDto) {
-
-    const existingUser = await this.authService.findUserByEmail(registerDto.email);
+  async register(@Body() createUserDto: CreateUserDto) {
+    const existingUser = await this.authService.findUserByEmail(createUserDto.email);
     if (existingUser) {
       throw new HttpException('El usuario ya existe', HttpStatus.CONFLICT);
     }
-
-    const user = await this.authService.registerWithCitizenRole(registerDto);
-    return user;
+    const user = await this.authService.create(createUserDto);
+    return new UserProfileResponseDto(
+      HttpStatus.OK,
+      'User added successfully',
+      UserDto.fromEntity(user),
+    );
   }
 
 
