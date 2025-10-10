@@ -44,9 +44,6 @@ export class AuthService {
         }
 
         const passwordValid = await bcrypt.compare(pass, user.password);
-        this.logger.debug('Contraseña ingresada:', pass);
-        this.logger.debug('Hash guardado en BD:', user.password);
-        this.logger.debug('Comparación bcrypt:', await bcrypt.compare(pass, user.password));
 
         if (email === user.email && passwordValid) {
             const { password, resetToken, resetTokenExpiresAt, ...result } = user;

@@ -12,6 +12,7 @@ import { IncidentCategoryModule } from './incident-categories/incident-category.
 import { IncidentModule } from './incidents/incident.module';
 import { AvailabilityZonesModule } from './availability-zones/availability-zone.module';
 import { ControlEntityModule } from './control-entities/control-entity.module';
+import { ControlEntityUserModule } from './control-entity-user/control-entity-user.module';
 
 
 @Module({
@@ -24,6 +25,7 @@ import { ControlEntityModule } from './control-entities/control-entity.module';
     IncidentCategoryModule,
     IncidentModule,
     ControlEntityModule,
+    ControlEntityUserModule,
     MikroOrmModule.forRoot(databaseConfig),
     ConfigModule.forRoot({
       isGlobal: true,
