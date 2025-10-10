@@ -30,9 +30,9 @@ export class ControlEntityService {
         const controlEntityUsers = await this.em.find(
             ControlEntityUser,
             { controlEntity: id },
-            { populate: ['userId'] },
+            { populate: ['user'] },
         );
 
-        return controlEntityUsers.map(relation => relation.userId);
+        return controlEntityUsers.map(relation => relation.user);
     }
 }

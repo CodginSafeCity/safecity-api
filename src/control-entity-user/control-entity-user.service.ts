@@ -24,7 +24,7 @@ export class ControlEntityUserService {
         }
 
         const relation = new ControlEntityUser();
-        relation.userId = user;
+        relation.user = user;
         relation.controlEntity = controlEntity;
 
         await this.em.persistAndFlush(relation);
@@ -46,11 +46,11 @@ export class ControlEntityUserService {
             where.controlEntity = query.controlEntityId;
         }
 
-        const limit = query.limit ? Number(query.limit) : 10;
+        const limit = query.limit ? Number(query.limit) : 20;
         const offset = query.offset ? Number(query.offset) : 0;
 
         const [data, total] = await this.em.findAndCount(ControlEntityUser, where, {
-            populate: ['userId', 'controlEntity'],
+            populate: ['user', 'controlEntity'],
             limit,
             offset,
         });

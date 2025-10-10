@@ -6,7 +6,7 @@ import { BaseEntity } from 'src/core/base-entity';
 @Entity({ tableName: 'control_entity_users' })
 export class ControlEntityUser extends BaseEntity{
   @ManyToOne(() => UserEntity)
-  userId!: UserEntity;
+  user!: UserEntity;
 
   @ManyToOne(() => ControlEntity)
   controlEntity!: ControlEntity;
