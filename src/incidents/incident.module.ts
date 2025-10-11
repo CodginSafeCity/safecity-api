@@ -5,6 +5,9 @@ import { IncidentService } from './incident.service';
 import { IncidentController } from './incident.controller';
 import { UserEntity } from 'src/user/user.entity';
 import { IncidentCategoryEntity } from 'src/incident-categories/incident-category.entity';
+import { AvailabilityZoneEntity } from 'src/availability-zones/availability-zone.entity';
+import { ControlEntity } from 'src/control-entities/control-entity.entity';
+import { ControlEntityUser } from 'src/control-entity-user/control-entity-user.entity';
 import { CityEntity } from 'src/locations/city.entity';
 
 @Module({
@@ -14,6 +17,9 @@ import { CityEntity } from 'src/locations/city.entity';
       UserEntity,
       IncidentCategoryEntity,
       CityEntity,
+      AvailabilityZoneEntity,
+      ControlEntity,
+      ControlEntityUser
     ]),
   ],
   controllers: [IncidentController],
