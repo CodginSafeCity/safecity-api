@@ -9,6 +9,7 @@ import { AvailabilityZoneEntity } from 'src/availability-zones/availability-zone
 import { ControlEntity } from 'src/control-entities/control-entity.entity';
 import { ControlEntityUser } from 'src/control-entity-user/control-entity-user.entity';
 import { CityEntity } from 'src/locations/city.entity';
+import { MailerService } from 'src/mailer/mailer.service';
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { CityEntity } from 'src/locations/city.entity';
     ]),
   ],
   controllers: [IncidentController],
-  providers: [IncidentService],
-  exports: [IncidentService],
+  providers: [IncidentService, MailerService ],
+  exports: [IncidentService, MailerService ],
 })
 export class IncidentModule {}

@@ -18,6 +18,7 @@ import { ControlEntityUser } from 'src/control-entity-user/control-entity-user.e
 import { IncidentQueryFilterDto } from './dto/incident-find-options.dto';
 import { CityEntity } from 'src/locations/city.entity';
 import { wrap } from '@mikro-orm/core';
+import { MailerService } from 'src/mailer/mailer.service';
 
 @Injectable()
 export class IncidentService {
@@ -37,16 +38,18 @@ export class IncidentService {
         private readonly controlEntityRepo: EntityRepository<ControlEntity>,
         @InjectRepository(ControlEntityUser)
         private readonly controlEntityUserRepo: EntityRepository<ControlEntityUser>,
-
+        private readonly mailerService: MailerService,
     ) { }
 
     @HandleError('Error creating incident', {
         errorException: InternalServerErrorException,
     })
     async create(dto: CreateIncidentDto): Promise<IncidentEntity> {
-        const user = await this.userRepository.findOneOrFail({ id: dto.userId });
-        const category = await this.categoryRepository.findOneOrFail({ id: dto.categoryId });
-        const city = await this.cityRepository.findOneOrFail({ id: dto.cityId });
+        const [user, category, city] = await Promise.all([
+            this.userRepository.findOneOrFail({ id: dto.userId }),
+            this.categoryRepository.findOneOrFail({ id: dto.categoryId }),
+            this.cityRepository.findOneOrFail({ id: dto.cityId }),
+        ]);
 
         const incident = new IncidentEntity();
         wrap(incident).assign({
@@ -78,11 +81,19 @@ export class IncidentService {
             throw new NotFoundException('No users associated with this control entity');
         }
 
-        const assignedUser = controlUsers[0].user;
-
-        incident.assigned_to = assignedUser;
+        incident.assigned_to = controlUsers[0].user;
 
         await this.incidentRepository.getEntityManager().persistAndFlush(incident);
+
+        void this.mailerService
+            .sendMail(
+                user.email,
+                `Tu incidente #${incident.id} ha sido registrado`,
+                this.buildIncidentEmailTemplate(incident),
+            )
+            .catch(err => {
+                this.logger.error(`Error enviando correo de confirmación al usuario ${user.email}: ${err.message}`);
+            });
         return incident;
     }
 
@@ -163,4 +174,25 @@ export class IncidentService {
             .limit(1)
             .getSingleResult();
     }
+
+    private buildIncidentEmailTemplate(incident: IncidentEntity): string {
+        return `
+            <div style="font-family: Arial, sans-serif; line-height: 1.5;">
+            <h2 style="color: #007bff;">Tu incidente ha sido registrado</h2>
+            <p>Hola <strong>${incident.user?.name ?? ''}</strong>,</p>
+            <p>Tu reporte ha sido creado exitosamente con la siguiente información:</p>
+            <ul>
+                <li><strong>ID:</strong> ${incident.id}</li>
+                <li><strong>Categoría:</strong> ${incident.category?.name ?? ''}</li>
+                <li><strong>Ciudad:</strong> ${incident.city?.name ?? ''}</li>
+                <li><strong>Descripción:</strong> ${incident.description}</li>
+                <li><strong>Fecha reportada:</strong> ${incident.reported_at}</li>
+            </ul>
+            <p>Un agente ha sido asignado a tu caso. Nos pondremos en contacto contigo si es necesario.</p>
+            <p>Gracias por usar <strong>SafeCity</strong>.</p>
+            </div>
+        `;
+    }
+
+
 }
