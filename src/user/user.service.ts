@@ -127,14 +127,46 @@ export class UserService {
 
         const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
 
-        await this.mailerService.sendMail(
+        const html = `
+            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f7fa; padding: 30px;">
+                <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                <div style="background-color: #007bff; padding: 20px; text-align: center; color: #ffffff;">
+                    <h1 style="margin: 0; font-size: 22px;">Recuperación de contraseña</h1>
+                </div>
+                <div style="padding: 30px;">
+                    <p style="font-size: 16px; color: #333;">Hola <strong>${user.name ?? ''}</strong>,</p>
+                    <p style="font-size: 15px; color: #555;">
+                    Hemos recibido una solicitud para restablecer tu contraseña. Si tú no realizaste esta acción, puedes ignorar este mensaje.
+                    </p>
+                    <p style="text-align: center; margin: 30px 0;">
+                    <a href="${resetUrl}"
+                        style="background-color: #007bff; color: #ffffff; padding: 14px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                        Restablecer contraseña
+                    </a>
+                    </p>
+                    <p style="font-size: 14px; color: #888;">
+                    Este enlace expirará en <strong>1 hora</strong>.
+                    </p>
+                    <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+                    <p style="font-size: 13px; color: #aaa; text-align: center;">
+                    Si el botón no funciona, copia y pega el siguiente enlace en tu navegador:
+                    </p>
+                    <p style="font-size: 13px; color: #007bff; word-break: break-all; text-align: center;">
+                    <a href="${resetUrl}" style="color: #007bff;">${resetUrl}</a>
+                    </p>
+                </div>
+                <div style="background-color: #f1f1f1; padding: 15px; text-align: center; font-size: 12px; color: #999;">
+                    © ${new Date().getFullYear()} SafeCity - Todos los derechos reservados
+                </div>
+                </div>
+            </div>
+        `;
+
+        this.mailerService.sendMail(
             user.email,
             'Recuperación de contraseña',
-            `<p>Haz click en el siguiente enlace para restablecer tu contraseña:</p>
-                <a href="${resetUrl}">${resetUrl}</a>
-                <p>Este enlace expira en 1 hora.</p>`,
+            html,
         );
-
         return token;
     }
 
@@ -157,5 +189,4 @@ export class UserService {
         await this.userRepository.getEntityManager().persistAndFlush(user);
         return user;
     }
-
 }
