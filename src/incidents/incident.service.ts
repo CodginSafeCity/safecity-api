@@ -85,6 +85,9 @@ export class IncidentService {
 
         await this.incidentRepository.getEntityManager().persistAndFlush(incident);
 
+        (incident as any).zone = zone;
+        (incident as any).controlEntity = controlEntity;
+
         void this.mailerService
             .sendMail(
                 user.email,
@@ -176,23 +179,58 @@ export class IncidentService {
     }
 
     private buildIncidentEmailTemplate(incident: IncidentEntity): string {
+        const assignedUser = incident.assigned_to
+            ? `${incident.assigned_to.name} (${incident.assigned_to.email})`
+            : 'Sin asignar';
+        const controlEntity = (incident as any).controlEntity?.name ?? 'No especificada';
+        const zone = (incident as any).zone?.name ?? 'No especificada';
+
         return `
-            <div style="font-family: Arial, sans-serif; line-height: 1.5;">
-            <h2 style="color: #007bff;">Tu incidente ha sido registrado</h2>
-            <p>Hola <strong>${incident.user?.name ?? ''}</strong>,</p>
-            <p>Tu reporte ha sido creado exitosamente con la siguiente información:</p>
-            <ul>
-                <li><strong>ID:</strong> ${incident.id}</li>
-                <li><strong>Categoría:</strong> ${incident.category?.name ?? ''}</li>
-                <li><strong>Ciudad:</strong> ${incident.city?.name ?? ''}</li>
-                <li><strong>Descripción:</strong> ${incident.description}</li>
-                <li><strong>Fecha reportada:</strong> ${incident.reported_at}</li>
-            </ul>
-            <p>Un agente ha sido asignado a tu caso. Nos pondremos en contacto contigo si es necesario.</p>
-            <p>Gracias por usar <strong>SafeCity</strong>.</p>
+            <div style="font-family: Arial, sans-serif; background-color: #f7f9fc; padding: 20px;">
+                <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <h2 style="color: #007bff; margin-top: 0;">📢 Tu incidente ha sido registrado con éxito</h2>
+                    <p>Hola <strong>${incident.user?.name ?? ''}</strong>,</p>
+                    <p>Hemos recibido tu reporte y ha sido creado exitosamente con la siguiente información:</p>
+                    
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                        <tr>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>ID del Incidente:</strong></td>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee;">${incident.id}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Categoría:</strong></td>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee;">${incident.category?.name ?? ''}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Ciudad:</strong></td>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee;">${incident.city?.name ?? ''}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Zona:</strong></td>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee;">${zone}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Entidad de control:</strong></td>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee;">${controlEntity}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Asignado a:</strong></td>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee;">${assignedUser}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Descripción:</strong></td>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee;">${incident.description}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px;"><strong>Fecha reportada:</strong></td>
+                            <td style="padding: 8px;">${incident.reported_at}</td>
+                        </tr>
+                    </table>
+
+                    <p style="margin-top: 20px;">Un agente ha sido asignado a tu caso. Nos pondremos en contacto contigo si es necesario.</p>
+                    <p style="margin-top: 20px;">Gracias por usar <strong>SafeCity</strong>.</p>
+                </div>
             </div>
         `;
     }
-
-
 }
