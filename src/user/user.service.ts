@@ -67,7 +67,9 @@ export class UserService {
     async createVerifier(dto: CreateControlEntityUserDto): Promise<UserEntity> {
         const hashedPassword = await bcrypt.hash(dto.password, 10);
 
-        const role = await this.roleRepository.findOneOrFail({ id: dto.roleId });
+        const role = dto.roleId
+            ? await this.roleRepository.findOneOrFail({ id: dto.roleId })
+            : await this.roleRepository.findOneOrFail({ name: 'Verifier' });
 
         const city = dto.cityId
             ? await this.cityRepository.findOneOrFail({ id: dto.cityId })
@@ -85,7 +87,11 @@ export class UserService {
         });
 
         await this.userRepository.getEntityManager().persistAndFlush(user);
-        await this.controlEntityUserService.assignUserToControlEntity(user.id, dto.controlEntityId)
+        await this.controlEntityUserService.assignUserToControlEntity(
+            user.id,
+            dto.controlEntityId,
+        );
+
         return user;
     }
 
