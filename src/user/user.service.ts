@@ -18,6 +18,8 @@ import { wrap } from '@mikro-orm/core';
 import { randomBytes } from 'crypto';
 import { addHours, isAfter } from 'date-fns';
 import { MailerService } from 'src/mailer/mailer.service';
+import { ControlEntityUserService } from 'src/control-entity-user/control-entity-user.service';
+import { CreateControlEntityUserDto } from 'src/control-entities/dto/create-control-entity-user.dto';
 
 @Injectable()
 export class UserService {
@@ -29,6 +31,7 @@ export class UserService {
         @InjectRepository(CityEntity)
         private readonly cityRepository: EntityRepository<CityEntity>,
         private readonly mailerService: MailerService,
+        private readonly controlEntityUserService: ControlEntityUserService
     ) { }
 
     @HandleError('Error creating user', {
@@ -55,6 +58,34 @@ export class UserService {
         });
 
         await this.userRepository.getEntityManager().persistAndFlush(user);
+        return user;
+    }
+
+    @HandleError('Error creating user', {
+        errorException: InternalServerErrorException,
+    })
+    async createVerifier(dto: CreateControlEntityUserDto): Promise<UserEntity> {
+        const hashedPassword = await bcrypt.hash(dto.password, 10);
+
+        const role = await this.roleRepository.findOneOrFail({ id: dto.roleId });
+
+        const city = dto.cityId
+            ? await this.cityRepository.findOneOrFail({ id: dto.cityId })
+            : null;
+
+        const user = new UserEntity();
+        wrap(user).assign({
+            name: dto.name,
+            last_name: dto.last_name,
+            email: dto.email,
+            password: hashedPassword,
+            avatar: dto.avatar,
+            role,
+            city,
+        });
+
+        await this.userRepository.getEntityManager().persistAndFlush(user);
+        await this.controlEntityUserService.assignUserToControlEntity(user.id, dto.controlEntityId)
         return user;
     }
 
