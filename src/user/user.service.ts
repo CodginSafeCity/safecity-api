@@ -125,7 +125,7 @@ export class UserService {
 
         await this.userRepository.getEntityManager().persistAndFlush(user);
 
-        const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+        const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}&email=${email}`;
 
         const html = `
             <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f7fa; padding: 30px;">
