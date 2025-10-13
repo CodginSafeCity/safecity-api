@@ -19,7 +19,7 @@ import { ControlEntityUserResponseDto } from './dto/controlEntityUser-response.d
 import { ControlEntityUserService } from './control-entity-user.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { ControlEntityUserDto } from './dto/control-entity-user.dto';
-import { CreateControlEntityUserDto } from 'src/control-entity-user/dto/create-control-entity-user.dto';
+// import { CreateControlEntityUserDto } from 'src/control-entity-user/dto/create-control-entity-user.dto';
 import { CreateControlEntityUserResponseDto } from './dto/createControlEntityUser-response.dto';
 import { ControlEntityUserQueryFilterDto } from './dto/control-entity-user-query-filter.dto';
 import { FindControlEntityUserResponseDto } from './dto/find-control-entity-user-response.dto';
@@ -30,33 +30,33 @@ import { FindControlEntityUserResponseDto } from './dto/find-control-entity-user
 export class ControlEntityUserController {
     constructor(private readonly controlEntityUserService: ControlEntityUserService) { }
 
-    @UseGuards(JwtAuthGuard)
-    @Post('register')
-    @ApiBody({ type: CreateControlEntityUserDto })
-    @ApiOkResponse({
-        description: 'Usuario asignado exitosamente a la entidad de control',
-        type: CreateControlEntityUserResponseDto,
-    })
-    @ApiConflictResponse({ description: 'Usuario o entidad de control no encontrados' })
-    async register(@Body() createControlEntityUserDto: CreateControlEntityUserDto) {
-        const relation = await this.controlEntityUserService.assignUserToControlEntity(
-            createControlEntityUserDto.userId,
-            createControlEntityUserDto.controlEntityId,
-        );
+    // @UseGuards(JwtAuthGuard)
+    // @Post('register')
+    // @ApiBody({ type: CreateControlEntityUserDto })
+    // @ApiOkResponse({
+    //     description: 'Usuario asignado exitosamente a la entidad de control',
+    //     type: CreateControlEntityUserResponseDto,
+    // })
+    // @ApiConflictResponse({ description: 'Usuario o entidad de control no encontrados' })
+    // async register(@Body() createControlEntityUserDto: CreateControlEntityUserDto) {
+    //     const relation = await this.controlEntityUserService.assignUserToControlEntity(
+    //         createControlEntityUserDto.userId,
+    //         createControlEntityUserDto.controlEntityId,
+    //     );
 
-        if (!relation) {
-            throw new HttpException(
-                'Usuario o entidad de control no encontrados',
-                HttpStatus.CONFLICT,
-            );
-        }
+    //     if (!relation) {
+    //         throw new HttpException(
+    //             'Usuario o entidad de control no encontrados',
+    //             HttpStatus.CONFLICT,
+    //         );
+    //     }
 
-        return new CreateControlEntityUserResponseDto(
-            HttpStatus.OK,
-            'User assigned successfully',
-            ControlEntityUserDto.fromEntity(relation),
-        );
-    }
+    //     return new CreateControlEntityUserResponseDto(
+    //         HttpStatus.OK,
+    //         'User assigned successfully',
+    //         ControlEntityUserDto.fromEntity(relation),
+    //     );
+    // }
 
     @ApiOkResponse({
         description: 'Availability Zones retrieved successfully',

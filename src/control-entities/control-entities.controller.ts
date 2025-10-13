@@ -1,7 +1,9 @@
 import {
     Controller,
     Get,
+    Post,
     HttpStatus,
+    Body,
     Logger,
     Param,
     ParseUUIDPipe,
@@ -19,6 +21,10 @@ import {
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { ControlEntityService } from 'src/control-entities/control-entities.service';
 import { ControlEntityUserResponseDto } from './dto/control-entity-user-response.dto';
+import { UserService } from 'src/user/user.service';
+import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import { CreateControlEntityUserDto } from './dto/create-control-entity-user.dto';
+import { UserResponseDto } from 'src/user/dto/user-response.dto';
 
 @ApiTags('control-entities')
 @ApiBearerAuth()
@@ -29,8 +35,10 @@ import { ControlEntityUserResponseDto } from './dto/control-entity-user-response
 @Controller('control-entities')
 export class ControlEntityController {
     private readonly logger = new Logger(ControlEntityController.name);
-
-    constructor(private readonly controlEntityService: ControlEntityService) { }
+    constructor(
+        private readonly controlEntityService: ControlEntityService,
+        private readonly userService: UserService
+    ) {}
 
     @ApiParam({
         name: 'id',
@@ -48,6 +56,20 @@ export class ControlEntityController {
             statusCode: HttpStatus.OK,
             message: 'Usuarios asociados obtenidos correctamente',
             data: users.map(ControlEntityUserResponseDto.fromEntity),
+        };
+    }
+
+    @ApiOkResponse({
+        description: 'Verifier created successfully',
+        type: UserResponseDto,
+    })
+    @Post(':id/users')
+    async create(@Body() dto: CreateControlEntityUserDto) {
+        const user = await this.userService.createVerifier(dto);
+        return {
+            statusCode: HttpStatus.CREATED,
+            message: 'Verifier created successfully',
+            data: CreateControlEntityUserDto.fromEntity(user),
         };
     }
 }

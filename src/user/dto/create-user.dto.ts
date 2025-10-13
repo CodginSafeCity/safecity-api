@@ -1,5 +1,7 @@
 import { IsEmail, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { plainToInstance } from 'class-transformer';
+import { UserEntity } from 'src/user/user.entity';
 
 export class CreateUserDto {
   @ApiProperty({ example: 'John', description: 'Nombre del usuario' })
@@ -36,4 +38,8 @@ export class CreateUserDto {
   @IsUUID()
   @IsOptional()
   cityId?: string;
+
+  static fromEntity(entity: UserEntity): CreateUserDto {
+    return plainToInstance(CreateUserDto, entity);
+  }
 }
