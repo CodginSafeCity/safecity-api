@@ -10,6 +10,7 @@ import { ControlEntity } from 'src/control-entities/control-entity.entity';
 import { ControlEntityUser } from 'src/control-entity-user/control-entity-user.entity';
 import { CityEntity } from 'src/locations/city.entity';
 import { MailerService } from 'src/mailer/mailer.service';
+import { MinioModule } from 'src/minio/minio.module';
 
 @Module({
   imports: [
@@ -20,8 +21,9 @@ import { MailerService } from 'src/mailer/mailer.service';
       CityEntity,
       AvailabilityZoneEntity,
       ControlEntity,
-      ControlEntityUser
+      ControlEntityUser,
     ]),
+    MinioModule
   ],
   controllers: [IncidentController],
   providers: [IncidentService, MailerService ],

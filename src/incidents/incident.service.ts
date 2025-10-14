@@ -19,6 +19,9 @@ import { IncidentQueryFilterDto } from './dto/incident-find-options.dto';
 import { CityEntity } from 'src/locations/city.entity';
 import { wrap } from '@mikro-orm/core';
 import { MailerService } from 'src/mailer/mailer.service';
+import { MinioService } from 'src/minio/minio.service';
+import { minioClient } from 'src/minio/minio.client';
+import { v4 as uuid } from 'uuid';
 
 @Injectable()
 export class IncidentService {
@@ -39,6 +42,7 @@ export class IncidentService {
         @InjectRepository(ControlEntityUser)
         private readonly controlEntityUserRepo: EntityRepository<ControlEntityUser>,
         private readonly mailerService: MailerService,
+        private readonly minioService: MinioService,
     ) { }
 
     @HandleError('Error creating incident', {
@@ -232,5 +236,15 @@ export class IncidentService {
                 </div>
             </div>
         `;
+    }
+
+    async uploadFile(incidentId: string, file: Express.Multer.File): Promise<IncidentEntity> {
+        const fileUrl = await this.minioService.uploadFile(file);
+
+        const incident = await this.findById(incidentId);
+        incident.fileUrl = fileUrl;
+
+        await this.incidentRepository.getEntityManager().persistAndFlush(incident);
+        return incident;
     }
 }

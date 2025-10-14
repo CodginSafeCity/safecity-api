@@ -12,14 +12,18 @@ import {
     Put,
     UseGuards,
     Query,
+    UploadedFile,
+    UseInterceptors,
 } from '@nestjs/common';
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
+    ApiConsumes,
     ApiInternalServerErrorResponse,
     ApiOkResponse,
     ApiTags,
     ApiUnauthorizedResponse,
+    ApiBody
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { IncidentService } from './incident.service';
@@ -34,9 +38,13 @@ import {
     DeleteIncidentResponseDto,
     FindIncidentsByUserResponseDto,
 } from './dto/incident-response.dto';
+import { UploadIncidentFileResponseDto } from './dto/upload-incident-file-reponse.dto';
 import { IncidentFindOptionsDto } from './dto/incident-find-options.dto';
 import { IncidentDto } from './dto/incident.dto';
 import { IncidentQueryFilterDto } from './dto/incident-find-options.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import type { Express } from 'express';
+import { UploadIncidentFileDto } from './dto/upload-incident-file.dto';
 
 @ApiTags('incidents')
 @ApiBearerAuth()
@@ -65,13 +73,36 @@ export class IncidentController {
     }
 
     @ApiOkResponse({
+        description: 'Incident file uploaded successfully',
+        type: UploadIncidentFileResponseDto,
+    })
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({ type: UploadIncidentFileDto })
+    @Post(':id/upload-file')
+    @UseInterceptors(FileInterceptor('file'))
+    async uploadFile(
+        @Param('id', ParseUUIDPipe) incidentId: string,
+        @UploadedFile() file: Express.Multer.File,
+    ): Promise<any> {
+        const incident = await this.incidentService.uploadFile(incidentId, file);
+        return {
+            statusCode: HttpStatus.CREATED,
+            message: 'File uploaded successfully',
+            data: {
+                id: incident.id,
+                fileUrl: incident.fileUrl,
+            },
+        };
+    }
+
+
+    @ApiOkResponse({
         description: 'Incidents retrieved successfully with pagination',
         type: FindIncidentsResponseDto,
     })
     @Get()
     async find(@Query() findOptions: IncidentFindOptionsDto) {
         const filter = IncidentQueryFilterDto.create(findOptions);
-
         const incidents = await this.incidentService.find(filter);
 
         return {
