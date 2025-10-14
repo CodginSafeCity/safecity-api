@@ -25,6 +25,9 @@ import { UserService } from 'src/user/user.service';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { CreateControlEntityUserDto } from './dto/create-control-entity-user.dto';
 import { UserResponseDto } from 'src/user/dto/user-response.dto';
+import { CreateControlEntityDto } from './dto/create-control-entity.dto';
+import { ControlEntityResponseDto } from './dto/control-entity-response.dto';
+
 
 @ApiTags('control-entities')
 @ApiBearerAuth()
@@ -38,7 +41,7 @@ export class ControlEntityController {
     constructor(
         private readonly controlEntityService: ControlEntityService,
         private readonly userService: UserService
-    ) {}
+    ) { }
 
     @ApiParam({
         name: 'id',
@@ -64,12 +67,26 @@ export class ControlEntityController {
         type: UserResponseDto,
     })
     @Post(':id/users')
-    async create(@Body() dto: CreateControlEntityUserDto) {
+    async createVerifier(@Body() dto: CreateControlEntityUserDto) {
         const user = await this.userService.createVerifier(dto);
         return {
             statusCode: HttpStatus.CREATED,
             message: 'Verifier created successfully',
             data: CreateControlEntityUserDto.fromEntity(user),
+        };
+    }
+
+    @ApiOkResponse({
+        description: 'Control Entity created successfully',
+        type: ControlEntityResponseDto,
+    })
+    @Post()
+    async create(@Body() dto: CreateControlEntityDto) {
+        const entity = await this.controlEntityService.create(dto);
+        return {
+            statusCode: HttpStatus.CREATED,
+            message: 'Control Entity created successfully',
+            data: ControlEntityResponseDto.fromEntity(entity),
         };
     }
 }
