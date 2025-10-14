@@ -49,4 +49,7 @@ export class IncidentEntity extends BaseEntity {
 
   @Property({ type: 'timestamp', nullable: true })
   verified_at?: Date;
+
+  @Property({ nullable: true })
+  fileUrl?: string;
 }
