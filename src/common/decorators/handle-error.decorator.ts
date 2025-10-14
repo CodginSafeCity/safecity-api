@@ -34,6 +34,10 @@ function wrapMethod(
       const errorMessage = `[${context}] ${error.message ?? error} - ${error.stack ?? ''}`;
       logger.error(errorMessage);
 
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
       if (options?.errorException && options?.throwError) {
         throw new options.errorException(errorMessage);
       }

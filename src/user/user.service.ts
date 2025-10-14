@@ -38,13 +38,37 @@ export class UserService {
         errorException: InternalServerErrorException,
     })
     async create(dto: CreateUserDto): Promise<UserEntity> {
-        const hashedPassword = await bcrypt.hash(dto.password, 10);
+        const existing = await this.userRepository.findOne({ email: dto.email });
+        if (existing) {
+            throw new BadRequestException({
+                statusCode: 400,
+                message: 'El correo ya está registrado',
+                error: 'Bad Request',
+            });
+        }
 
-        const role = await this.roleRepository.findOneOrFail({ id: dto.roleId });
+        const role = await this.roleRepository.findOne({ id: dto.roleId });
+        if (!role) {
+            throw new NotFoundException({
+                statusCode: 404,
+                message: `El rol con id ${dto.roleId} no existe`,
+                error: 'Not Found',
+            });
+        }
 
         const city = dto.cityId
-            ? await this.cityRepository.findOneOrFail({ id: dto.cityId })
+            ? await this.cityRepository.findOne({ id: dto.cityId })
             : null;
+
+        if (dto.cityId && !city) {
+            throw new NotFoundException({
+                statusCode: 404,
+                message: `La ciudad con id ${dto.cityId} no existe`,
+                error: 'Not Found',
+            });
+        }
+
+        const hashedPassword = await bcrypt.hash(dto.password, 10);
 
         const user = new UserEntity();
         wrap(user).assign({
