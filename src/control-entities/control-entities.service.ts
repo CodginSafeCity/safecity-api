@@ -8,6 +8,8 @@ import { ControlEntityUser } from 'src/control-entity-user/control-entity-user.e
 import { UserEntity } from 'src/user/user.entity';
 import { CreateControlEntityDto } from './dto/create-control-entity.dto';
 import { wrap } from '@mikro-orm/core';
+import { IncidentEntity } from 'src/incidents/incident.entity';
+import { raw } from '@mikro-orm/knex';
 
 @Injectable()
 export class ControlEntityService {
@@ -23,6 +25,9 @@ export class ControlEntityService {
 
         @InjectRepository(ControlEntity)
         private readonly controlRepo: EntityRepository<ControlEntity>,
+
+        @InjectRepository(IncidentEntity)
+        private readonly incidentRepository: EntityRepository<IncidentEntity>,
 
         @Inject(EntityManager)
         private readonly em: EntityManager,
@@ -54,4 +59,20 @@ export class ControlEntityService {
         return this.controlRepo.findAll();
     }
 
+    async groupByStatus(controlEntityId: string) {
+        const knex = this.incidentRepository.getEntityManager().getConnection().getKnex();
+
+        const result = await knex('incidents as i')
+            .select('i.status')
+            .count('i.id as total')
+            .join('control_entity_users as ceu', 'ceu.user_id', 'i.assigned_to_id')
+            .join('control_entities as ce', 'ce.id', 'ceu.control_entity_id')
+            .where('ce.id', controlEntityId)
+            .groupBy('i.status');
+
+        return result.map((r: any) => ({
+            status: r.status,
+            total: Number(r.total),
+        }));
+    }
 }

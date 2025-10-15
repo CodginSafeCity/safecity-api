@@ -50,6 +50,24 @@ export class ControlEntityController {
         private readonly incidentService: IncidentService,
     ) { }
 
+    @ApiOkResponse({
+        description: 'Incidents grouped by status',
+    })
+    @ApiParam({
+        name: 'id',
+        type: String,
+        description: 'UUID de la entidad de control',
+    })
+    @Get(':id/groupByStatus')
+    async groupByStatus(@Param('id', ParseUUIDPipe) id: string) {
+        const result = await this.controlEntityService.groupByStatus(id);
+        return {
+            statusCode: 200,
+            message: 'Incidents grouped by status',
+            data: result,
+        };
+    }
+
     @ApiParam({
         name: 'id',
         type: String,

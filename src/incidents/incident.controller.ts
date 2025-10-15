@@ -59,6 +59,19 @@ export class IncidentController {
     constructor(private readonly incidentService: IncidentService) { }
 
     @ApiOkResponse({
+        description: 'Incidents grouped by status',
+    })
+    @Get('groupByStatus')
+    async groupByStatus() {
+        const result = await this.incidentService.groupByStatus();
+        return {
+            statusCode: 200,
+            message: 'Incidents grouped by status',
+            data: result,
+        };
+    }
+
+    @ApiOkResponse({
         description: 'Incident created successfully',
         type: CreateIncidentResponseDto,
     })
