@@ -20,8 +20,7 @@ import { CityEntity } from 'src/locations/city.entity';
 import { wrap } from '@mikro-orm/core';
 import { MailerService } from 'src/mailer/mailer.service';
 import { MinioService } from 'src/minio/minio.service';
-import { minioClient } from 'src/minio/minio.client';
-import { v4 as uuid } from 'uuid';
+import { IncidentStatus } from 'src/incidents/incident.types';
 
 @Injectable()
 export class IncidentService {
@@ -248,10 +247,10 @@ export class IncidentService {
         return incident;
     }
 
-    async findByControlEntity(controlEntityId: string): Promise<IncidentEntity[]> {
+    async findByControlEntity(controlEntityId: string, status?: IncidentStatus): Promise<IncidentEntity[]> {
         const controlUsers = await this.controlEntityUserRepo.find(
             { controlEntity: controlEntityId },
-            { populate: ['user', 'controlEntity', 'controlEntity.availabilityZones'] }, // <-- agregamos populate
+            { populate: ['user', 'controlEntity', 'controlEntity.availabilityZones'] },
         );
 
         if (!controlUsers.length) {
@@ -261,13 +260,18 @@ export class IncidentService {
         const userIds = controlUsers.map(cu => cu.user.id);
         const controlEntity = controlUsers[0].controlEntity;
 
+        const filter: any = { assigned_to: { $in: userIds } };
+        if (status) {
+            filter.status = status;
+        }
+
         const incidents = await this.incidentRepository.find(
-            { assigned_to: { $in: userIds } },
+            filter,
             { populate: ['reported_by', 'category', 'city', 'assigned_to'] },
         );
 
         if (!incidents.length) {
-            throw new NotFoundException(`No incidents assigned to users of control entity ${controlEntityId}`);
+            throw new NotFoundException(`No incidents assigned to users of control entity ${controlEntityId} with status ${status ?? 'any'}`);
         }
 
         incidents.forEach(incident => {
@@ -276,5 +280,6 @@ export class IncidentService {
 
         return incidents;
     }
+
 
 }

@@ -1,5 +1,6 @@
 import {
     Controller,
+    Query,
     Get,
     Post,
     HttpStatus,
@@ -30,6 +31,7 @@ import { CreateControlEntityDto } from './dto/create-control-entity.dto';
 import { ControlEntityResponseDto } from './dto/control-entity-response.dto';
 import { FindIncidentsResponseDto } from 'src/incidents/dto/incident-response.dto';
 import { IncidentDto } from 'src/incidents/dto/incident.dto';
+import { IncidentStatus } from 'src/incidents/incident.types';
 
 
 @ApiTags('control-entities')
@@ -106,8 +108,9 @@ export class ControlEntityController {
     @Get(':id/incidents')
     async findIncidentsByControlEntity(
         @Param('id', ParseUUIDPipe) id: string,
+        @Query('status') status?: IncidentStatus,
     ): Promise<FindIncidentsResponseDto> {
-        const incidents = await this.incidentService.findByControlEntity(id);
+        const incidents = await this.incidentService.findByControlEntity(id, status);
 
         return {
             statusCode: HttpStatus.OK,
