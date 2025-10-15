@@ -247,4 +247,29 @@ export class IncidentService {
         await this.incidentRepository.getEntityManager().persistAndFlush(incident);
         return incident;
     }
+
+    async findByControlEntity(controlEntityId: string): Promise<IncidentEntity[]> {
+        const controlUsers = await this.controlEntityUserRepo.find(
+            { controlEntity: controlEntityId },
+            { populate: ['user'] },
+        );
+
+        if (!controlUsers.length) {
+            throw new NotFoundException(`No users associated with control entity ${controlEntityId}`);
+        }
+
+        const userIds = controlUsers.map(cu => cu.user.id);
+
+        const incidents = await this.incidentRepository.find(
+            { assigned_to: { $in: userIds } },
+            { populate: ['reported_by', 'category', 'city', 'assigned_to'] },
+        );
+
+        if (!incidents.length) {
+            throw new NotFoundException(`No incidents assigned to users of control entity ${controlEntityId}`);
+        }
+
+        return incidents;
+    }
+
 }

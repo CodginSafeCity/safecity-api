@@ -11,7 +11,7 @@ import { RoleEntity } from 'src/roles/role.entity';
 import { UserEntity } from 'src/user/user.entity';
 import { MailerService } from 'src/mailer/mailer.service';
 import { ControlEntityUserService } from 'src/control-entity-user/control-entity-user.service';
-
+import { IncidentModule } from 'src/incidents/incident.module';
 @Module({
   imports: [
     MikroOrmModule.forFeature([
@@ -22,6 +22,7 @@ import { ControlEntityUserService } from 'src/control-entity-user/control-entity
       RoleEntity,
       UserEntity
     ]),
+    IncidentModule,
   ],
   controllers: [ControlEntityController],
   providers: [ControlEntityService, UserService, MailerService, ControlEntityUserService],

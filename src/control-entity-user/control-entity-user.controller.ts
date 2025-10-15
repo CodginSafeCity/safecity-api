@@ -29,35 +29,6 @@ import { FindControlEntityUserResponseDto } from './dto/find-control-entity-user
 @Controller('controlEntityUser')
 export class ControlEntityUserController {
     constructor(private readonly controlEntityUserService: ControlEntityUserService) { }
-
-    // @UseGuards(JwtAuthGuard)
-    // @Post('register')
-    // @ApiBody({ type: CreateControlEntityUserDto })
-    // @ApiOkResponse({
-    //     description: 'Usuario asignado exitosamente a la entidad de control',
-    //     type: CreateControlEntityUserResponseDto,
-    // })
-    // @ApiConflictResponse({ description: 'Usuario o entidad de control no encontrados' })
-    // async register(@Body() createControlEntityUserDto: CreateControlEntityUserDto) {
-    //     const relation = await this.controlEntityUserService.assignUserToControlEntity(
-    //         createControlEntityUserDto.userId,
-    //         createControlEntityUserDto.controlEntityId,
-    //     );
-
-    //     if (!relation) {
-    //         throw new HttpException(
-    //             'Usuario o entidad de control no encontrados',
-    //             HttpStatus.CONFLICT,
-    //         );
-    //     }
-
-    //     return new CreateControlEntityUserResponseDto(
-    //         HttpStatus.OK,
-    //         'User assigned successfully',
-    //         ControlEntityUserDto.fromEntity(relation),
-    //     );
-    // }
-
     @ApiOkResponse({
         description: 'Availability Zones retrieved successfully',
         type: FindControlEntityUserResponseDto,
