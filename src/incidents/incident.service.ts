@@ -251,7 +251,7 @@ export class IncidentService {
     async findByControlEntity(controlEntityId: string): Promise<IncidentEntity[]> {
         const controlUsers = await this.controlEntityUserRepo.find(
             { controlEntity: controlEntityId },
-            { populate: ['user'] },
+            { populate: ['user', 'controlEntity', 'controlEntity.availabilityZones'] }, // <-- agregamos populate
         );
 
         if (!controlUsers.length) {
@@ -259,6 +259,7 @@ export class IncidentService {
         }
 
         const userIds = controlUsers.map(cu => cu.user.id);
+        const controlEntity = controlUsers[0].controlEntity;
 
         const incidents = await this.incidentRepository.find(
             { assigned_to: { $in: userIds } },
@@ -268,6 +269,10 @@ export class IncidentService {
         if (!incidents.length) {
             throw new NotFoundException(`No incidents assigned to users of control entity ${controlEntityId}`);
         }
+
+        incidents.forEach(incident => {
+            (incident as any).controlEntity = controlEntity;
+        });
 
         return incidents;
     }

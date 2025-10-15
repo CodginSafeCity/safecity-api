@@ -32,6 +32,17 @@ export class CityDto {
   name: string;
 }
 
+export class AvailabilityZoneDto {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  name: string;
+
+  @ApiProperty({ required: false, nullable: true })
+  area?: any;
+}
+
 export class IncidentDto {
   @ApiProperty()
   id: string;
@@ -60,6 +71,9 @@ export class IncidentDto {
   @ApiProperty({ type: CityDto, required: false })
   city?: CityDto;
 
+  @ApiProperty({ type: [AvailabilityZoneDto], required: false })
+  availabilityZones?: AvailabilityZoneDto[];
+
   static fromEntity(entity: IncidentEntity): IncidentDto {
     const dto = new IncidentDto();
     dto.id = entity.id;
@@ -85,6 +99,14 @@ export class IncidentDto {
       id: entity.city.id,
       name: entity.city.name,
     } : undefined;
+
+    if ((entity as any).controlEntity?.availabilityZones) {
+      dto.availabilityZones = (entity as any).controlEntity.availabilityZones.map((zone: any) => ({
+        id: zone.id,
+        name: zone.name,
+        area: zone.area,
+      }));
+    }
 
     return dto;
   }
