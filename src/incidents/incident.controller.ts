@@ -45,6 +45,7 @@ import { IncidentQueryFilterDto } from './dto/incident-find-options.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Express } from 'express';
 import { UploadIncidentFileDto } from './dto/upload-incident-file.dto';
+import { GroupByStatusResponseDto } from './dto/group-by-status-response.dto';
 
 @ApiTags('incidents')
 @ApiBearerAuth()
@@ -60,6 +61,7 @@ export class IncidentController {
 
     @ApiOkResponse({
         description: 'Incidents grouped by status',
+        type: GroupByStatusResponseDto,
     })
     @Get('groupByStatus')
     async groupByStatus() {

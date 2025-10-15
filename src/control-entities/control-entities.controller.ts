@@ -33,6 +33,7 @@ import { ControlEntityResponseDto } from './dto/control-entity-response.dto';
 import { FindIncidentsResponseDto } from 'src/incidents/dto/incident-response.dto';
 import { IncidentDto } from 'src/incidents/dto/incident.dto';
 import { IncidentStatus } from 'src/incidents/incident.types';
+import { GroupByStatusResponseDto } from 'src/incidents/dto/group-by-status-response.dto';
 
 
 @ApiTags('control-entities')
@@ -51,7 +52,8 @@ export class ControlEntityController {
     ) { }
 
     @ApiOkResponse({
-        description: 'Incidents grouped by status',
+        description: 'Incidents grouped by status for a control entity',
+        type: GroupByStatusResponseDto,
     })
     @ApiParam({
         name: 'id',
