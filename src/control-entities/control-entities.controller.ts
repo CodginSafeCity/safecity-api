@@ -128,4 +128,18 @@ export class ControlEntityController {
             offset: 0,
         };
     }
+
+    @ApiOkResponse({
+        description: 'All control entities retrieved successfully',
+        type: [ControlEntityResponseDto],
+    })
+    @Get()
+    async findAllControlEntities() {
+        const entities = await this.controlEntityService.findAll();
+        return {
+            statusCode: HttpStatus.OK,
+            message: 'Control entities retrieved successfully',
+            data: entities.map(ControlEntityResponseDto.fromEntity),
+        };
+    }
 }

@@ -49,4 +49,9 @@ export class ControlEntityService {
         await this.em.persistAndFlush(controlEntity);
         return controlEntity;
     }
+
+    async findAll() {
+        return this.controlRepo.findAll();
+    }
+
 }
