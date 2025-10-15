@@ -45,6 +45,7 @@ import { IncidentQueryFilterDto } from './dto/incident-find-options.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Express } from 'express';
 import { UploadIncidentFileDto } from './dto/upload-incident-file.dto';
+import { GroupByStatusResponseDto } from './dto/group-by-status-response.dto';
 
 @ApiTags('incidents')
 @ApiBearerAuth()
@@ -57,6 +58,20 @@ export class IncidentController {
     private readonly logger = new Logger(IncidentController.name);
 
     constructor(private readonly incidentService: IncidentService) { }
+
+    @ApiOkResponse({
+        description: 'Incidents grouped by status',
+        type: GroupByStatusResponseDto,
+    })
+    @Get('groupByStatus')
+    async groupByStatus() {
+        const result = await this.incidentService.groupByStatus();
+        return {
+            statusCode: 200,
+            message: 'Incidents grouped by status',
+            data: result,
+        };
+    }
 
     @ApiOkResponse({
         description: 'Incident created successfully',

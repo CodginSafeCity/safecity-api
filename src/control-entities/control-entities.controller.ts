@@ -18,6 +18,7 @@ import {
     ApiTags,
     ApiUnauthorizedResponse,
     ApiParam,
+    ApiQuery
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { ControlEntityService } from 'src/control-entities/control-entities.service';
@@ -32,6 +33,7 @@ import { ControlEntityResponseDto } from './dto/control-entity-response.dto';
 import { FindIncidentsResponseDto } from 'src/incidents/dto/incident-response.dto';
 import { IncidentDto } from 'src/incidents/dto/incident.dto';
 import { IncidentStatus } from 'src/incidents/incident.types';
+import { GroupByStatusResponseDto } from 'src/incidents/dto/group-by-status-response.dto';
 
 
 @ApiTags('control-entities')
@@ -48,6 +50,25 @@ export class ControlEntityController {
         private readonly userService: UserService,
         private readonly incidentService: IncidentService,
     ) { }
+
+    @ApiOkResponse({
+        description: 'Incidents grouped by status for a control entity',
+        type: GroupByStatusResponseDto,
+    })
+    @ApiParam({
+        name: 'id',
+        type: String,
+        description: 'UUID de la entidad de control',
+    })
+    @Get(':id/groupByStatus')
+    async groupByStatus(@Param('id', ParseUUIDPipe) id: string) {
+        const result = await this.controlEntityService.groupByStatus(id);
+        return {
+            statusCode: 200,
+            message: 'Incidents grouped by status',
+            data: result,
+        };
+    }
 
     @ApiParam({
         name: 'id',
@@ -101,6 +122,12 @@ export class ControlEntityController {
         type: String,
         description: 'UUID de la entidad de control',
     })
+    @ApiQuery({
+        name: 'status',
+        required: false,
+        enum: IncidentStatus,
+        description: 'Filtrar incidentes por estado (opcional)',
+    })
     @ApiOkResponse({
         description: 'Incidents by control entity retrieved successfully',
         type: FindIncidentsResponseDto,
@@ -119,6 +146,20 @@ export class ControlEntityController {
             total: incidents.length,
             limit: incidents.length,
             offset: 0,
+        };
+    }
+
+    @ApiOkResponse({
+        description: 'All control entities retrieved successfully',
+        type: [ControlEntityResponseDto],
+    })
+    @Get()
+    async findAllControlEntities() {
+        const entities = await this.controlEntityService.findAll();
+        return {
+            statusCode: HttpStatus.OK,
+            message: 'Control entities retrieved successfully',
+            data: entities.map(ControlEntityResponseDto.fromEntity),
         };
     }
 }

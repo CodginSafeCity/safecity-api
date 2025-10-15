@@ -21,6 +21,7 @@ import { wrap } from '@mikro-orm/core';
 import { MailerService } from 'src/mailer/mailer.service';
 import { MinioService } from 'src/minio/minio.service';
 import { IncidentStatus } from 'src/incidents/incident.types';
+import { raw } from '@mikro-orm/knex';
 
 @Injectable()
 export class IncidentService {
@@ -108,6 +109,10 @@ export class IncidentService {
 
         if (query.filter?.description) {
             filter.description = { $like: `%${query.filter.description}%` };
+        }
+
+        if (query.filter?.status) {
+            filter.status = query.filter.status;
         }
 
         const [result, total] = await this.incidentRepository.findAndCount(filter, {
@@ -281,5 +286,14 @@ export class IncidentService {
         return incidents;
     }
 
+    async groupByStatus() {
+        const qb = this.incidentRepository.createQueryBuilder('i');
 
+        qb.select('i.status')
+            .addSelect(raw('COUNT(i.id) as total'))
+            .groupBy('i.status');
+
+        const result = await qb.execute();
+        return result;
+    }
 }
