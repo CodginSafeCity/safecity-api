@@ -1,5 +1,6 @@
 import {
     Controller,
+    Query,
     Get,
     Post,
     HttpStatus,
@@ -22,11 +23,15 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { ControlEntityService } from 'src/control-entities/control-entities.service';
 import { ControlEntityUserResponseDto } from './dto/control-entity-user-response.dto';
 import { UserService } from 'src/user/user.service';
+import { IncidentService } from 'src/incidents/incident.service';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { CreateControlEntityUserDto } from './dto/create-control-entity-user.dto';
 import { UserResponseDto } from 'src/user/dto/user-response.dto';
 import { CreateControlEntityDto } from './dto/create-control-entity.dto';
 import { ControlEntityResponseDto } from './dto/control-entity-response.dto';
+import { FindIncidentsResponseDto } from 'src/incidents/dto/incident-response.dto';
+import { IncidentDto } from 'src/incidents/dto/incident.dto';
+import { IncidentStatus } from 'src/incidents/incident.types';
 
 
 @ApiTags('control-entities')
@@ -40,7 +45,8 @@ export class ControlEntityController {
     private readonly logger = new Logger(ControlEntityController.name);
     constructor(
         private readonly controlEntityService: ControlEntityService,
-        private readonly userService: UserService
+        private readonly userService: UserService,
+        private readonly incidentService: IncidentService,
     ) { }
 
     @ApiParam({
@@ -87,6 +93,32 @@ export class ControlEntityController {
             statusCode: HttpStatus.CREATED,
             message: 'Control Entity created successfully',
             data: ControlEntityResponseDto.fromEntity(entity),
+        };
+    }
+
+    @ApiParam({
+        name: 'id',
+        type: String,
+        description: 'UUID de la entidad de control',
+    })
+    @ApiOkResponse({
+        description: 'Incidents by control entity retrieved successfully',
+        type: FindIncidentsResponseDto,
+    })
+    @Get(':id/incidents')
+    async findIncidentsByControlEntity(
+        @Param('id', ParseUUIDPipe) id: string,
+        @Query('status') status?: IncidentStatus,
+    ): Promise<FindIncidentsResponseDto> {
+        const incidents = await this.incidentService.findByControlEntity(id, status);
+
+        return {
+            statusCode: HttpStatus.OK,
+            message: 'Incidents retrieved successfully for control entity',
+            data: incidents.map(IncidentDto.fromEntity),
+            total: incidents.length,
+            limit: incidents.length,
+            offset: 0,
         };
     }
 }

@@ -20,8 +20,7 @@ import { CityEntity } from 'src/locations/city.entity';
 import { wrap } from '@mikro-orm/core';
 import { MailerService } from 'src/mailer/mailer.service';
 import { MinioService } from 'src/minio/minio.service';
-import { minioClient } from 'src/minio/minio.client';
-import { v4 as uuid } from 'uuid';
+import { IncidentStatus } from 'src/incidents/incident.types';
 
 @Injectable()
 export class IncidentService {
@@ -247,4 +246,40 @@ export class IncidentService {
         await this.incidentRepository.getEntityManager().persistAndFlush(incident);
         return incident;
     }
+
+    async findByControlEntity(controlEntityId: string, status?: IncidentStatus): Promise<IncidentEntity[]> {
+        const controlUsers = await this.controlEntityUserRepo.find(
+            { controlEntity: controlEntityId },
+            { populate: ['user', 'controlEntity', 'controlEntity.availabilityZones'] },
+        );
+
+        if (!controlUsers.length) {
+            throw new NotFoundException(`No users associated with control entity ${controlEntityId}`);
+        }
+
+        const userIds = controlUsers.map(cu => cu.user.id);
+        const controlEntity = controlUsers[0].controlEntity;
+
+        const filter: any = { assigned_to: { $in: userIds } };
+        if (status) {
+            filter.status = status;
+        }
+
+        const incidents = await this.incidentRepository.find(
+            filter,
+            { populate: ['reported_by', 'category', 'city', 'assigned_to'] },
+        );
+
+        if (!incidents.length) {
+            throw new NotFoundException(`No incidents assigned to users of control entity ${controlEntityId} with status ${status ?? 'any'}`);
+        }
+
+        incidents.forEach(incident => {
+            (incident as any).controlEntity = controlEntity;
+        });
+
+        return incidents;
+    }
+
+
 }

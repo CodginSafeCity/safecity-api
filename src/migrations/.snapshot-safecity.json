@@ -654,6 +654,16 @@
       "schema": "public",
       "indexes": [
         {
+          "columnNames": [
+            "email"
+          ],
+          "composite": false,
+          "keyName": "users_email_unique",
+          "constraint": true,
+          "primary": false,
+          "unique": true
+        },
+        {
           "keyName": "users_pkey",
           "columnNames": [
             "id"

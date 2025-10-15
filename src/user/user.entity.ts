@@ -11,7 +11,7 @@ export class UserEntity extends BaseEntity {
   @Property()
   last_name!: string;
 
-  @Property()
+  @Property({ unique: true })
   email!: string;
 
   @Property()
