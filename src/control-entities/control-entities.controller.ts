@@ -18,6 +18,7 @@ import {
     ApiTags,
     ApiUnauthorizedResponse,
     ApiParam,
+    ApiQuery
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { ControlEntityService } from 'src/control-entities/control-entities.service';
@@ -100,6 +101,12 @@ export class ControlEntityController {
         name: 'id',
         type: String,
         description: 'UUID de la entidad de control',
+    })
+    @ApiQuery({
+        name: 'status',
+        required: false,
+        enum: IncidentStatus,
+        description: 'Filtrar incidentes por estado (opcional)',
     })
     @ApiOkResponse({
         description: 'Incidents by control entity retrieved successfully',
