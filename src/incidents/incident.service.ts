@@ -71,10 +71,10 @@ export class IncidentService {
             throw new NotFoundException('No availability zone found for this location');
         }
 
-        const controlEntity = await this.controlEntityRepo.findOne({ availabilityZones: zone.id });
-        if (!controlEntity) {
-            throw new NotFoundException('No control entity associated with this zone');
-        }
+        const controlEntity = await this.controlEntityRepo.findOne(
+            { availabilityZones: zone.id },
+            { populate: ['availabilityZones'] }
+        );
 
         const controlUsers = await this.controlEntityUserRepo.find(
             { controlEntity },
