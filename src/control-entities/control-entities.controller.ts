@@ -34,7 +34,9 @@ import { FindIncidentsResponseDto } from 'src/incidents/dto/incident-response.dt
 import { IncidentDto } from 'src/incidents/dto/incident.dto';
 import { IncidentStatus } from 'src/incidents/incident.types';
 import { GroupByStatusResponseDto } from 'src/incidents/dto/group-by-status-response.dto';
-
+import { AvailabilityZonesService } from 'src/availability-zones/availability-zones.service';
+import { FindAvailabilityZonesResponseDto } from 'src/availability-zones/dto/availability-zone-response.dto';
+import { AvailabilityZoneDto } from 'src/availability-zones/dto/availability-zone.dto';
 
 @ApiTags('control-entities')
 @ApiBearerAuth()
@@ -49,6 +51,7 @@ export class ControlEntityController {
         private readonly controlEntityService: ControlEntityService,
         private readonly userService: UserService,
         private readonly incidentService: IncidentService,
+        private readonly zonesService: AvailabilityZonesService,
     ) { }
 
     @ApiOkResponse({
@@ -88,6 +91,30 @@ export class ControlEntityController {
             data: users.map(ControlEntityUserResponseDto.fromEntity),
         };
     }
+
+    @ApiParam({
+        name: 'id',
+        type: String,
+        description: 'UUID de la entidad de control',
+    })
+    @ApiOkResponse({
+        description: 'Zonas de disponibilidad asociadas a la entidad de control obtenidas correctamente',
+        type: FindAvailabilityZonesResponseDto,
+    })
+    @Get(':id/availabilityZones')
+    async findZonesById(@Param('id', ParseUUIDPipe) id: string) {
+        const zones = await this.zonesService.findZonesByControlEntityId(id);
+
+        return {
+            statusCode: HttpStatus.OK,
+            message: 'Zonas de disponibilidad asociadas obtenidas correctamente',
+            data: zones.map(AvailabilityZoneDto.fromEntity),
+            total: zones.length,
+            limit: zones.length,
+            offset: 0,
+        };
+    }
+
 
     @ApiOkResponse({
         description: 'Verifier created successfully',

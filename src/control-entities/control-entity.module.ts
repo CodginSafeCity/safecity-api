@@ -13,6 +13,7 @@ import { MailerService } from 'src/mailer/mailer.service';
 import { ControlEntityUserService } from 'src/control-entity-user/control-entity-user.service';
 import { IncidentModule } from 'src/incidents/incident.module';
 import { IncidentEntity } from 'src/incidents/incident.entity';
+import { AvailabilityZonesService } from 'src/availability-zones/availability-zones.service';
 
 @Module({
   imports: [
@@ -28,7 +29,7 @@ import { IncidentEntity } from 'src/incidents/incident.entity';
     IncidentModule,
   ],
   controllers: [ControlEntityController],
-  providers: [ControlEntityService, UserService, MailerService, ControlEntityUserService],
-  exports: [ControlEntityService, UserService, MailerService, ControlEntityUserService],
+  providers: [ControlEntityService, UserService, MailerService, ControlEntityUserService, AvailabilityZonesService],
+  exports: [ControlEntityService, UserService, MailerService, ControlEntityUserService, AvailabilityZonesService],
 })
 export class ControlEntityModule {}

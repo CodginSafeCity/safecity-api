@@ -81,4 +81,17 @@ export class AvailabilityZonesService {
         await this.em.removeAndFlush(zone);
         return zone;
     }
+
+    async findZonesByControlEntityId(controlEntityId: string): Promise<AvailabilityZoneEntity[]> {
+        const zones = await this.repo.find(
+            { controlEntity: controlEntityId },
+            { populate: ['city', 'controlEntity'], orderBy: { createdAt: 'DESC' } },
+        );
+
+        if (!zones.length) {
+            throw new NotFoundException('No se encontraron zonas asociadas a la entidad de control');
+        }
+
+        return zones;
+    }
 }
