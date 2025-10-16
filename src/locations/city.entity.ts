@@ -23,4 +23,7 @@ export class CityEntity extends BaseEntity {
     this.province = province;
     this.location = location;
   }
+
+  @Property({ type: 'float', nullable: true })
+  zoom?: number;
 }
