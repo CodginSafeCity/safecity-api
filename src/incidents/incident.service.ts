@@ -209,8 +209,8 @@ export class IncidentService {
 
     async findByUser(userId: string): Promise<IncidentEntity[]> {
         const incidents = await this.incidentRepository.find(
-            { user: userId },
-            { populate: ['user', 'category', 'city'] },
+            { reported_by: userId },
+            { populate: ['reported_by', 'category', 'city'] },
         );
         if (!incidents.length) {
             throw new NotFoundException(`No incidents found for user with id ${userId}`);
