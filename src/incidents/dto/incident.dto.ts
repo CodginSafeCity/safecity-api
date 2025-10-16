@@ -120,11 +120,24 @@ export class IncidentDto {
     } : undefined;
 
     if ((entity as any).controlEntity?.availabilityZones) {
-      dto.availabilityZones = (entity as any).controlEntity.availabilityZones.map((zone: any) => ({
-        id: zone.id,
-        name: zone.name,
-        area: zone.area,
-      }));
+      dto.availabilityZones = (entity as any).controlEntity.availabilityZones.map((zone: any) => {
+        let parsedArea: any = null;
+
+        if (zone.area) {
+          try {
+            const geom = wkx.Geometry.parse(Buffer.from(zone.area, 'hex'));
+            parsedArea = geom.toGeoJSON();
+          } catch (e) {
+            parsedArea = null;
+          }
+        }
+
+        return {
+          id: zone.id,
+          name: zone.name,
+          area: parsedArea,
+        };
+      });
     }
 
     return dto;
