@@ -8,7 +8,10 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'http://127.0.0.1:3000',
-      'http://localhost:3000'
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'http://127.0.0.1:3001',
+      'https://app.safecity.fun',
     ],
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
@@ -17,7 +20,9 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('SafeCity API')
-    .setDescription('API para gestionar reportes de seguridad con datos geoespaciales')
+    .setDescription(
+      'API para gestionar reportes de seguridad con datos geoespaciales',
+    )
     .setVersion('1.0')
     .addBearerAuth({
       type: 'http',
