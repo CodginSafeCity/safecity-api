@@ -71,10 +71,10 @@ export class IncidentService {
             throw new NotFoundException('No availability zone found for this location');
         }
 
-        const controlEntity = await this.controlEntityRepo.findOne({ availabilityZones: zone.id });
-        if (!controlEntity) {
-            throw new NotFoundException('No control entity associated with this zone');
-        }
+        const controlEntity = await this.controlEntityRepo.findOne(
+            { availabilityZones: zone.id },
+            { populate: ['availabilityZones'] }
+        );
 
         const controlUsers = await this.controlEntityUserRepo.find(
             { controlEntity },
@@ -134,27 +134,71 @@ export class IncidentService {
         return this.incidentRepository.getEntityManager().transactional(async () => {
             const incident = await this.findById(id);
 
+            const promises: Promise<void>[] = [];
+
             if (dto.userId) {
-                incident.user = await this.userRepository.findOneOrFail({ id: dto.userId });
+                const p = this.userRepository.findOneOrFail({ id: dto.userId })
+                    .then(user => {
+                        incident.user = user;
+                    });
+                promises.push(p);
             }
+
             if (dto.categoryId) {
-                incident.category = await this.categoryRepository.findOneOrFail({ id: dto.categoryId });
+                const p = this.categoryRepository.findOneOrFail({ id: dto.categoryId })
+                    .then(category => {
+                        incident.category = category;
+                    });
+                promises.push(p);
             }
+
             if (dto.cityId) {
-                incident.city = await this.cityRepository.findOneOrFail({ id: dto.cityId });
+                const p = this.cityRepository.findOneOrFail({ id: dto.cityId })
+                    .then(city => {
+                        incident.city = city;
+                    });
+                promises.push(p);
             }
+
+            if (promises.length) {
+                await Promise.all(promises);
+            }
+
+            const statusChangedToClosed =
+                dto.status && dto.status === IncidentStatus.CLOSED && incident.status !== IncidentStatus.CLOSED;
 
             this.incidentRepository.assign(incident, {
                 description: dto.description ?? incident.description,
                 reported_at: dto.reported_at ?? incident.reported_at,
                 verified_at: dto.verified_at ?? incident.verified_at,
                 location: dto.location ?? incident.location,
+                status: dto.status ?? incident.status,
             });
 
             await this.incidentRepository.getEntityManager().persistAndFlush(incident);
+
+            if (statusChangedToClosed) {
+                if (!incident.user) {
+                    this.logger.warn(`No se pudo enviar correo de cierre: el incidente ${incident.id} no tiene usuario asociado`);
+                } else {
+                    void this.mailerService
+                        .sendMail(
+                            incident.user.email,
+                            `Tu incidente #${incident.id} ha sido cerrado`,
+                            this.buildClosedIncidentEmailTemplate(incident),
+                        )
+                        .catch(err => {
+                            this.logger.error(
+                                `Error enviando correo de cierre al usuario ${incident.user?.email ?? 'desconocido'}: ${err.message}`,
+                            );
+                        });
+                }
+            }
+
             return incident;
         });
     }
+
 
     @HandleError('Error deleting incident', { throwError: true })
     async delete(id: string): Promise<IncidentEntity> {
@@ -241,6 +285,22 @@ export class IncidentService {
             </div>
         `;
     }
+
+    private buildClosedIncidentEmailTemplate(incident: IncidentEntity): string {
+        return `
+    <div style="font-family: Arial, sans-serif; background-color: #f7f9fc; padding: 20px;">
+      <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <h2 style="color: #28a745; margin-top: 0;">✅ Incidente #${incident.id} cerrado</h2>
+        <p>Hola <strong>${incident.user?.name ?? ''}</strong>,</p>
+        <p>Queremos informarte que tu incidente ha sido marcado como <strong>cerrado</strong>.</p>
+        <p><strong>Descripción:</strong> ${incident.description}</p>
+        <p><strong>Fecha de reporte:</strong> ${incident.reported_at}</p>
+        <p style="margin-top: 20px;">Gracias por usar <strong>SafeCity</strong>. Tu reporte ha contribuido a mejorar la seguridad.</p>
+      </div>
+    </div>
+  `;
+    }
+
 
     async uploadFile(incidentId: string, file: Express.Multer.File): Promise<IncidentEntity> {
         const fileUrl = await this.minioService.uploadFile(file);
